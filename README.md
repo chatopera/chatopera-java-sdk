@@ -29,6 +29,12 @@ mvn idea:idea # do your magic
 
 # 联系我们
 
+## SDK建议/PR
+
+请提交到[这里](https://github.com/chatopera/chatopera-sample-java/issues)。
+
+## 商业合作
+
 <a href="mailto:info@chatopera.com?subject=Chatopera%20Java%20SDK">
 info@chatopera.com
 </a>
