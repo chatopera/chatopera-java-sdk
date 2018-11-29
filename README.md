@@ -29,7 +29,10 @@ mvn idea:idea # do your magic
 
 # 联系我们
 
-[info@chatopera.com](mailto:info@chatopera.com?subject="Chatopera Java SDK")
+<a href="mailto:info@chatopera.com?subject=Chatopera%20Java%20SDK">
+info@chatopera.com
+</a>
+
 
 ## 更多SDK
 
