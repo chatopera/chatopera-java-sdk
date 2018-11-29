@@ -45,7 +45,7 @@ info@chatopera.com
 <p align="center">
   <b>集成面板</b><br>
   <a href="http://bot.chatopera.com/" target="_blank">
-      <img src="https://user-images.githubusercontent.com/3538629/48044669-1e212e80-e1c8-11e8-918c-8e6fdf4e95c0.png" width="800">
+      <img src="https://user-images.githubusercontent.com/3538629/49215845-af20a980-f404-11e8-8272-5c4ffbdc17ca.png" width="800">
   </a>
 </p>
 
