@@ -83,17 +83,17 @@ public class RestAPI {
      * Get
      *
      * @param url
-     * @param queryString
+     * @param query
      * @param headers
      * @return
      * @throws UnirestException
      */
-    public static JSONObject get(final String url, final HashMap<String, Object> queryString, HashMap<String, String> headers) throws UnirestException {
+    public static JSONObject get(final String url, final HashMap<String, Object> query, HashMap<String, String> headers) throws UnirestException {
         GetRequest request = Unirest.get(url);
         x(headers);
         HttpResponse<JsonNode> resp = request
                 .headers(headers)
-                .queryString(queryString)
+                .queryString(query)
                 .asJson();
         // parse response
         JSONObject obj = resp.getBody().getObject();
@@ -104,8 +104,8 @@ public class RestAPI {
         return get(url, null, null);
     }
 
-    public static JSONObject get(final String url, HashMap<String, Object> queryString) throws UnirestException {
-        return get(url, queryString, null);
+    public static JSONObject get(final String url, HashMap<String, Object> query) throws UnirestException {
+        return get(url, query, null);
     }
 
     public static JSONObject delete(final String url, HashMap<String, String> headers) throws UnirestException {
@@ -117,4 +117,29 @@ public class RestAPI {
         x(headers);
         return Unirest.put(url).headers(headers).fields(body).asJson().getBody().getObject();
     }
+
+    /**
+     * Put
+     *
+     * @param url
+     * @param body
+     * @param query
+     * @param headers
+     * @return
+     * @throws UnirestException
+     */
+    public static JSONObject put(final String url, final JSONObject body, final HashMap<String, Object> query, HashMap<String, String> headers) throws UnirestException {
+        HttpRequestWithBody request = Unirest.put(url);
+        x(headers);
+        // parse response
+        HttpResponse<JsonNode> resp = request
+                .headers(headers)
+                .queryString(query)
+                .body(body)
+                .asJson();
+
+        JSONObject obj = resp.getBody().getObject();
+        return obj;
+    }
+
 }

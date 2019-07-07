@@ -6,7 +6,7 @@
 
     <groupId>com.chatopera.bot</groupId>
     <artifactId>sdk</artifactId>
-    <version>1.0.2</version>
+    <version>1.1.0</version>
     <packaging>jar</packaging>
 
     <name>sdk</name>
@@ -105,8 +105,8 @@
         <developer>
             <id>hain</id>
             <name>Hai Liang Wang</name>
-            <email>hailiang.hl.wang@gmail.com</email>
-            <url>https://github.com/Samurais</url>
+            <email>hain@chatopera.com</email>
+            <url>https://blog.chatopera.com/author/hain</url>
             <organization>Chatopera Inc.</organization>
             <organizationUrl>http://www.chatopera.com</organizationUrl>
             <roles>
@@ -118,7 +118,7 @@
         <developer>
             <id>mukaiu</id>
             <name>Xiang Yu</name>
-            <url>https://github.com/mukaiu</url>
+            <url>https://blog.chatopera.com/author/yu</url>
             <organization>Chatopera Inc.</organization>
             <organizationUrl>http://www.chatopera.com</organizationUrl>
             <roles>

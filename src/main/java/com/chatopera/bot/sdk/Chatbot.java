@@ -20,9 +20,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Chatopera聊天机器人
@@ -44,6 +47,7 @@ public class Chatbot {
 
     /**
      * 创建聊天机器人实例，登录 https://bot.chatopera.com 获得 clientId 和 clientSecret
+     *
      * @param clientId
      * @param clientSecret
      * @param baseUrl
@@ -67,6 +71,7 @@ public class Chatbot {
 
     /**
      * 创建聊天机器人实例，登录 https://bot.chatopera.com 获得 clientId 和 clientSecret
+     *
      * @param clientId
      * @param clientSecret
      * @throws MalformedURLException
@@ -78,6 +83,7 @@ public class Chatbot {
 
     /**
      * 分析URL信息
+     *
      * @param url
      * @throws MalformedURLException
      */
@@ -134,6 +140,7 @@ public class Chatbot {
 
     /**
      * 生成认证信息
+     *
      * @param method
      * @param path
      * @return
@@ -152,25 +159,19 @@ public class Chatbot {
     /**
      * 获取聊天机器人详情
      *
-     * @return
+     * @return JSONObject
      * @throws ChatbotException
      */
     public JSONObject details() throws ChatbotException {
-        StringBuffer url = new StringBuffer();
-        url.append(this.getBaseUrl());
-        url.append("/");
-        url.append(this.clientId);
-
-        StringBuffer path = new StringBuffer();
-        path.append(Constants.basePath);
-        path.append("/");
-        path.append(this.clientId);
+        StringBuffer url = getUrlPrefix();
+        StringBuffer path = getPathPrefix();
         return request(url.toString(), "GET", path.toString(), null);
     }
 
     /**
      * 和机器人对话
-     * @param userId 用户唯一标识
+     *
+     * @param userId      用户唯一标识
      * @param textMessage 文字消息
      * @return
      */
@@ -182,16 +183,10 @@ public class Chatbot {
         body.put("textMessage", textMessage);
         body.put("isDebug", false);
 
-        StringBuffer url = new StringBuffer();
-        url.append(this.getBaseUrl());
-        url.append("/");
-        url.append(this.clientId);
+        StringBuffer url = getUrlPrefix();
         url.append("/conversation/query");
 
-        StringBuffer path = new StringBuffer();
-        path.append(Constants.basePath);
-        path.append("/");
-        path.append(this.clientId);
+        StringBuffer path = getPathPrefix();
         path.append("/conversation/query");
 
         return request(url.toString(), "POST", path.toString(), body);
@@ -199,7 +194,8 @@ public class Chatbot {
 
     /**
      * 意图识别
-     * @param customerId 客户ID
+     *
+     * @param customerId  客户ID
      * @param textMessage 文字消息
      * @return
      * @throws ChatbotException
@@ -212,16 +208,10 @@ public class Chatbot {
         body.put("clientId", customerId);
         body.put("query", textMessage);
 
-        StringBuffer url = new StringBuffer();
-        url.append(this.getBaseUrl());
-        url.append("/");
-        url.append(this.clientId);
+        StringBuffer url = getUrlPrefix();
         url.append("/intent/parse");
 
-        StringBuffer path = new StringBuffer();
-        path.append(Constants.basePath);
-        path.append("/");
-        path.append(this.clientId);
+        StringBuffer path = getPathPrefix();
         path.append("/intent/parse");
 
         return request(url.toString(), "POST", path.toString(), new JSONObject());
@@ -229,8 +219,9 @@ public class Chatbot {
 
     /**
      * 检索知识库
-     * @param userId
-     * @param textMessage
+     *
+     * @param userId 用户唯一标识
+     * @param textMessage 文字消息
      * @return
      * @throws ChatbotException
      */
@@ -241,24 +232,442 @@ public class Chatbot {
         body.put("query", textMessage);
         body.put("isDebug", false);
 
-        StringBuffer url = new StringBuffer();
-        url.append(this.getBaseUrl());
-        url.append("/");
-        url.append(this.clientId);
+        StringBuffer url = getUrlPrefix();
         url.append("/faq/query");
 
-        StringBuffer path = new StringBuffer();
-        path.append(Constants.basePath);
-        path.append("/");
-        path.append(this.clientId);
+        StringBuffer path = getPathPrefix();
         path.append("/faq/query");
 
         return request(url.toString(), "POST", path.toString(), body);
     }
 
     /**
+     * 查询知识库列表
+     *
+     * @param query    查询语句
+     * @param category 分类，使用父分类会将子分类的内容同时检索出来
+     * @param page     页码，默认为1
+     * @param pageSize 每页数据条数，默认 30
+     * @return
+     * @throws ChatbotException
+     * @throws UnsupportedEncodingException
+     */
+    public JSONObject faqlist(final String query, final String category, int page, int pageSize) throws ChatbotException, UnsupportedEncodingException {
+        if (page == 0) {
+            page = 1;
+        }
+
+        if (pageSize == 0) {
+            pageSize = 30;
+        }
+
+        StringBuffer url = getUrlPrefix();
+        url.append("/faq/database?page=");
+        url.append(page);
+        url.append("&limit=");
+        url.append(pageSize);
+
+        // 检索条件
+        if (StringUtils.isNotBlank(query)) {
+            url.append("&q=");
+            url.append(URLEncoder.encode(query, "UTF-8"));
+        }
+
+        // 分类
+        if(StringUtils.isNotBlank(category)){
+            url.append("&category=");
+            url.append(category);
+        }
+
+        StringBuffer path = getPathPrefix();
+        path.append("/faq/database?page=");
+        path.append(page);
+        path.append("&limit=");
+        path.append(pageSize);
+
+        // 检索条件
+        if (StringUtils.isNotBlank(query)) {
+            path.append("&q=");
+            path.append(URLEncoder.encode(query, "UTF-8"));
+        }
+
+        // 分类
+        if(StringUtils.isNotBlank(category)){
+            path.append("&category=");
+            path.append(category);
+        }
+
+        return request(url.toString(), "GET", path.toString(), null);
+    }
+
+    /**
+     * 创建知识库的问答对
+     * @param post 标准问的问题
+     * @param reply 标准问的回答
+     * @param enabled 是否启用，默认为 false
+     * @param categories 类别，是分类标识的数组，并不支持分类名称，必须使用分类标识
+     * @return
+     * @throws ChatbotException
+     */
+    public JSONObject faqcreate(final String post, final String reply, boolean enabled, final List<String> categories) throws ChatbotException {
+        if (StringUtils.isBlank(post) || StringUtils.isBlank(reply))
+            throw new ChatbotException("Invalid post or reply");
+
+        StringBuffer url = getUrlPrefix();
+        url.append("/faq/database");
+
+        StringBuffer path = getPathPrefix();
+        path.append("/faq/database");
+
+
+        JSONObject body = new JSONObject();
+        body.put("post", post);
+        body.put("reply", reply);
+
+        if(enabled){
+            body.put("enabled", true);
+        } else {
+            body.put("enabled", false);
+        }
+
+        if ((categories != null) && categories.size() > 0) {
+            JSONArray ja = new JSONArray();
+            for (int i = 0; i < categories.size(); i++) {
+                ja.put(categories.get(i));
+            }
+            body.put("categories", ja);
+        } else if ((categories != null) && categories.size() == 0) {
+            // 设置为全部
+            body.put("categories", new JSONArray());
+        }
+
+        return request(url.toString(), "POST", path.toString(), body);
+    }
+
+
+    /**
+     * 获得知识库一条记录的详情
+     *
+     * @param id 问答对唯一标识
+     * @return
+     * @throws ChatbotException
+     */
+    public JSONObject faqdetail(final String id) throws ChatbotException {
+        if (StringUtils.isBlank(id))
+            throw new ChatbotException("Invalid id");
+
+        StringBuffer url = getUrlPrefix();
+        url.append("/faq/database/");
+        url.append(id);
+
+        StringBuffer path = getPathPrefix();
+        path.append("/faq/database/");
+        path.append(id);
+
+        return request(url.toString(), "GET", path.toString(), null);
+    }
+
+    /**
+     * 更新知识库一条记录
+     *
+     * @param id         问答对唯一标识
+     * @param post       问题
+     * @param reply      回复
+     * @param enabled    是否启用
+     * @param categories 类别，是分类标识的数组，并不支持分类名称，必须使用分类标识
+     * @return JSONObject
+     * @throws ChatbotException
+     */
+    public JSONObject faqupdate(final String id, final String post, final String reply, boolean enabled, final List<String> categories) throws ChatbotException {
+        if (StringUtils.isBlank(id))
+            throw new ChatbotException("Invalid id");
+
+        StringBuffer url = getUrlPrefix();
+        url.append("/faq/database/");
+        url.append(id);
+
+        StringBuffer path = getPathPrefix();
+        path.append("/faq/database/");
+        path.append(id);
+
+        JSONObject obj = new JSONObject();
+        if (StringUtils.isNotBlank(post))
+            obj.put("post", post);
+
+        if (StringUtils.isNotBlank(reply))
+            obj.put("reply", reply);
+
+        if (enabled) {
+            obj.put("enabled", true);
+        } else {
+            obj.put("enabled", false);
+        }
+
+        if ((categories != null) && categories.size() > 0) {
+            JSONArray ja = new JSONArray();
+            for (int i = 0; i < categories.size(); i++) {
+                ja.put(categories.get(i));
+            }
+            obj.put("categories", ja);
+        } else if ((categories != null) && categories.size() == 0) {
+            // 设置为全部
+            obj.put("categories", new JSONArray());
+        }
+
+        return request(url.toString(), "PUT", path.toString(), obj);
+    }
+
+    /**
+     * 禁用知识库里一个问答对
+     *
+     * @param id    问答对唯一标识
+     * @return JSONObject
+     * @throws ChatbotException
+     */
+    public JSONObject faqdisable(final String id) throws ChatbotException {
+        if (StringUtils.isBlank(id))
+            throw new ChatbotException("Invalid id");
+        return this.faqupdate(id, null, null, false, null);
+    }
+
+
+    /**
+     * 启用知识库里一个问答对
+     *
+     * @param id    问答对唯一标识
+     * @return JSONObject
+     * @throws ChatbotException
+     */
+    public JSONObject faqenable(final String id) throws ChatbotException {
+        if (StringUtils.isBlank(id))
+            throw new ChatbotException("Invalid id");
+        return this.faqupdate(id, null, null, true, null);
+    }
+
+    /**
+     * 删除知识库的一条记录，标准问和扩展问都被物理性删除
+     *
+     * @param id    问答对唯一标识
+     * @return
+     * @throws ChatbotException
+     */
+    public JSONObject faqdelete(final String id) throws ChatbotException {
+        if (StringUtils.isBlank(id))
+            throw new ChatbotException("Invalid id");
+
+        StringBuffer url = getUrlPrefix();
+        url.append("/faq/database/");
+        url.append(id);
+
+        StringBuffer path = getPathPrefix();
+        path.append("/faq/database/");
+        path.append(id);
+
+        return request(url.toString(), "DELETE", path.toString(), null);
+    }
+
+
+    /**
+     * 查询知识库标准问的扩展问列表
+     *
+     * @param id    问答对唯一标识
+     * @return
+     * @throws ChatbotException
+     */
+    public JSONObject faqextend(final String id) throws ChatbotException {
+        if (StringUtils.isBlank(id))
+            throw new ChatbotException("Invalid id");
+
+        StringBuffer url = getUrlPrefix();
+        url.append("/faq/database/");
+        url.append(id);
+        url.append("/extend");
+
+        StringBuffer path = getPathPrefix();
+        path.append("/faq/database/");
+        path.append(id);
+        path.append("/extend");
+
+        return request(url.toString(), "GET", path.toString(), null);
+    }
+
+    /**
+     * 创建知识库标准问的扩展问
+     *
+     * @param id    问答对唯一标识
+     * @param post 扩展问
+     * @return JSONObject
+     */
+    public JSONObject faqextendcreate(final String id, final String post) throws ChatbotException {
+        if (StringUtils.isBlank(id) || StringUtils.isBlank(post))
+            throw new ChatbotException("Invalid id or post");
+
+        StringBuffer url = getUrlPrefix();
+        url.append("/faq/database/");
+        url.append(id);
+        url.append("/extend");
+
+        StringBuffer path = getPathPrefix();
+        path.append("/faq/database/");
+        path.append(id);
+        path.append("/extend");
+
+        JSONObject body = new JSONObject();
+        body.put("post", post);
+
+        return request(url.toString(), "POST", path.toString(), body);
+    }
+
+    /**
+     * 更新知识库标准问的扩展问
+     *
+     * @param id    问答对唯一标识
+     * @param post 扩展问
+     * @return JSONObject
+     */
+    public JSONObject faqextendupdate(final String id, final String extendId, final String post) throws ChatbotException {
+        if (StringUtils.isBlank(id) || StringUtils.isBlank(post) || StringUtils.isBlank(extendId))
+            throw new ChatbotException("Invalid id, post or extendId");
+
+        StringBuffer url = getUrlPrefix();
+        url.append("/faq/database/");
+        url.append(id);
+        url.append("/extend/");
+        url.append(extendId);
+
+        StringBuffer path = getPathPrefix();
+        path.append("/faq/database/");
+        path.append(id);
+        path.append("/extend/");
+        path.append(extendId);
+
+        JSONObject body = new JSONObject();
+        body.put("post", post);
+
+        return request(url.toString(), "PUT", path.toString(), body);
+    }
+
+
+    /**
+     * 删除知识库标准问的扩展问
+     * @param id    问答对唯一标识
+     * @param extendId  扩展问唯一标识
+     * @return
+     * @throws ChatbotException
+     */
+    public JSONObject faqextenddelete(final String id, final String extendId) throws ChatbotException {
+        if(StringUtils.isBlank(id) || StringUtils.isBlank(extendId)){
+            throw new ChatbotException("Invalid id or extendId");
+        }
+
+        StringBuffer url = getUrlPrefix();
+        url.append("/faq/database/");
+        url.append(id);
+        url.append("/extend/");
+        url.append(extendId);
+
+        StringBuffer path = getPathPrefix();
+        path.append("/faq/database/");
+        path.append(id);
+        path.append("/extend/");
+        path.append(extendId);
+
+        return request(url.toString(), "DELETE", path.toString(), null);
+    }
+
+
+    /**
+     * 获得知识库分类信息
+     * @return
+     * @throws ChatbotException
+     */
+    public JSONObject faqcategories() throws ChatbotException {
+        StringBuffer url = getUrlPrefix();
+        url.append("/faq/categories");
+
+        StringBuffer path = getPathPrefix();
+        path.append("/faq/categories");
+
+        return request(url.toString(), "GET", path.toString(), null);
+    }
+
+    /**
+     * 创建知识库分类
+     * @param label 分类名称
+     * @param parentId 父节点的标识， 即上级分类的标识
+     * @return
+     * @throws ChatbotException
+     */
+    public JSONObject faqcategorycreate(final String label, final String parentId) throws ChatbotException {
+        if(StringUtils.isBlank(label))
+            throw new ChatbotException("Invalid label");
+
+        StringBuffer url = getUrlPrefix();
+        url.append("/faq/categories");
+
+        StringBuffer path = getPathPrefix();
+        path.append("/faq/categories");
+
+        JSONObject body = new JSONObject();
+        body.put("label", label);
+
+        if(StringUtils.isNotBlank(parentId))
+            body.put("parentId", parentId);
+
+        return request(url.toString(), "POST", path.toString(), body);
+    }
+
+
+    /**
+     * 更新知识库分类
+     * @param value 知识库分类的标识
+     * @param label 知识库分类名称
+     * @return
+     * @throws ChatbotException
+     */
+    public JSONObject faqcategoryupdate(final String value, final String label) throws ChatbotException {
+        if(StringUtils.isBlank(label)|| StringUtils.isBlank(value))
+            throw new ChatbotException("Invalid label or value");
+
+        StringBuffer url = getUrlPrefix();
+        url.append("/faq/categories");
+
+        StringBuffer path = getPathPrefix();
+        path.append("/faq/categories");
+
+        JSONObject body = new JSONObject();
+        body.put("label", label);
+        body.put("value", value);
+
+        return request(url.toString(), "PUT", path.toString(), body);
+    }
+
+
+    /**
+     * 删除知识库分类
+     * @param value 知识库分类的标识
+     * @return
+     * @throws ChatbotException
+     */
+    public JSONObject faqcategorydelete(final String value) throws ChatbotException {
+        if(StringUtils.isBlank(value))
+            throw new ChatbotException("Invalid value");
+
+        StringBuffer url = getUrlPrefix();
+        url.append("/faq/categories/");
+        url.append(value);
+
+        StringBuffer path = getPathPrefix();
+        path.append("/faq/categories/");
+        path.append(value);
+
+        return request(url.toString(), "DELETE", path.toString(), null);
+    }
+
+    /**
      * 获得聊天机器人用户列表
-     * @param page 页面
+     *
+     * @param page     页面
      * @param pageSize 页面大小
      * @return
      * @throws ChatbotException
@@ -272,20 +681,14 @@ public class Chatbot {
             pageSize = 30;
         }
 
-        StringBuffer url = new StringBuffer();
-        url.append(this.getBaseUrl());
-        url.append("/");
-        url.append(this.clientId);
+        StringBuffer url = getUrlPrefix();
         url.append("/users?page=");
         url.append(page);
         url.append("&limit=");
         url.append(pageSize);
         url.append("&sortby=-lasttime");
 
-        StringBuffer path = new StringBuffer();
-        path.append(Constants.basePath);
-        path.append("/");
-        path.append(this.clientId);
+        StringBuffer path = getPathPrefix();
         path.append("/users?page=");
         path.append(page);
         path.append("&limit=");
@@ -295,10 +698,12 @@ public class Chatbot {
         return request(url.toString(), "GET", path.toString(), null);
     }
 
+
     /**
      * 根据用户ID获得聊天历史
-     * @param userId 用户唯一标识
-     * @param page 页面
+     *
+     * @param userId   用户唯一标识
+     * @param page     页面
      * @param pageSize 页面大小
      * @return
      * @throws ChatbotException
@@ -312,10 +717,7 @@ public class Chatbot {
             pageSize = 30;
         }
 
-        StringBuffer url = new StringBuffer();
-        url.append(this.getBaseUrl());
-        url.append("/");
-        url.append(this.clientId);
+        StringBuffer url = getUrlPrefix();
         url.append("/users/");
         url.append(userId);
         url.append("/chats?page=");
@@ -324,10 +726,7 @@ public class Chatbot {
         url.append(pageSize);
         url.append("&sortby=-lasttime");
 
-        StringBuffer path = new StringBuffer();
-        path.append(Constants.basePath);
-        path.append("/");
-        path.append(this.clientId);
+        StringBuffer path = getPathPrefix();
         path.append("/users/");
         path.append(userId);
         path.append("/chats?page=");
@@ -345,18 +744,12 @@ public class Chatbot {
      * @param userId 用户唯一标识
      */
     public void mute(final String userId) throws ChatbotException {
-        StringBuffer url = new StringBuffer();
-        url.append(this.getBaseUrl());
-        url.append("/");
-        url.append(this.clientId);
+        StringBuffer url = getUrlPrefix();
         url.append("/users/");
         url.append(userId);
         url.append("/mute");
 
-        StringBuffer path = new StringBuffer();
-        path.append(Constants.basePath);
-        path.append("/");
-        path.append(this.clientId);
+        StringBuffer path = getPathPrefix();
         path.append("/users/");
         path.append(userId);
         path.append("/mute");
@@ -368,22 +761,17 @@ public class Chatbot {
 
     /**
      * 根据用户ID取消屏蔽
+     *
      * @param userId 用户唯一标识
      * @throws ChatbotException
      */
     public void unmute(final String userId) throws ChatbotException {
-        StringBuffer url = new StringBuffer();
-        url.append(this.getBaseUrl());
-        url.append("/");
-        url.append(this.clientId);
+        StringBuffer url = getUrlPrefix();
         url.append("/users/");
         url.append(userId);
         url.append("/unmute");
 
-        StringBuffer path = new StringBuffer();
-        path.append(Constants.basePath);
-        path.append("/");
-        path.append(this.clientId);
+        StringBuffer path = getPathPrefix();
         path.append("/users/");
         path.append(userId);
         path.append("/unmute");
@@ -395,23 +783,18 @@ public class Chatbot {
 
     /**
      * 查看一个用户是否被屏蔽
+     *
      * @param userId 用户唯一标识
      * @return
      * @throws ChatbotException
      */
     public boolean ismute(final String userId) throws ChatbotException {
-        StringBuffer url = new StringBuffer();
-        url.append(this.getBaseUrl());
-        url.append("/");
-        url.append(this.clientId);
+        StringBuffer url = getUrlPrefix();
         url.append("/users/");
         url.append(userId);
         url.append("/ismute");
 
-        StringBuffer path = new StringBuffer();
-        path.append(Constants.basePath);
-        path.append("/");
-        path.append(this.clientId);
+        StringBuffer path = getPathPrefix();
         path.append("/users/");
         path.append(userId);
         path.append("/ismute");
@@ -426,14 +809,21 @@ public class Chatbot {
     }
 
     private JSONObject request(final String url, final String method, final String path, final JSONObject body) throws ChatbotException {
+        System.out.println("[request] url: " + url + ", method: " + method + ", path: " + path);
         JSONObject response;
         try {
             switch (method) {
                 case "GET":
-                    response = RestAPI.get(url, null, auth("GET", path));
+                    response = RestAPI.get(url, null, auth(method, path));
                     break;
                 case "POST":
-                    response = RestAPI.post(url, body, null, auth("POST", path));
+                    response = RestAPI.post(url, body, null, auth(method, path));
+                    break;
+                case "DELETE":
+                    response = RestAPI.delete(url, auth(method, path));
+                    break;
+                case "PUT":
+                    response = RestAPI.put(url, body, null, auth(method, path));
                     break;
                 default:
                     throw new ChatbotException("Invalid request method.");
@@ -452,7 +842,7 @@ public class Chatbot {
      * @param j
      */
     private void purge(final JSONObject j) {
-        if (j.getInt("rc") == 0) {
+        if (j.getInt("rc") == 0 && j.has("data")) {
             Object data = j.get("data");
             if (data instanceof JSONObject) {
                 ((JSONObject) data).remove("chatbotID");
@@ -481,4 +871,26 @@ public class Chatbot {
         if (StringUtils.isBlank(textMessage))
             throw new ChatbotException("[conversation] 不合法的消息内容。");
     }
+
+    /**
+     * 获得Url的固定前缀
+     *
+     * @return
+     */
+    private StringBuffer getUrlPrefix() {
+        StringBuffer sb = new StringBuffer();
+        return sb.append(this.getBaseUrl()).append("/").append(this.clientId);
+    }
+
+    /**
+     * 获得请求Path的固定前缀
+     *
+     * @return
+     */
+    private StringBuffer getPathPrefix() {
+        StringBuffer sb = new StringBuffer();
+        return sb.append(Constants.basePath).append("/").append(this.clientId);
+    }
+
+
 }
