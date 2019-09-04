@@ -193,31 +193,6 @@ public class Chatbot {
     }
 
     /**
-     * 意图识别
-     *
-     * @param customerId  客户ID
-     * @param textMessage 文字消息
-     * @return
-     * @throws ChatbotException
-     */
-    public JSONObject intent(final String customerId, final String textMessage) throws ChatbotException {
-        if (StringUtils.isBlank(this.clientId) || StringUtils.isBlank(customerId) || StringUtils.isBlank(textMessage))
-            throw new ChatbotException("参数不合法，不能为空。");
-
-        JSONObject body = new JSONObject();
-        body.put("clientId", customerId);
-        body.put("query", textMessage);
-
-        StringBuffer url = getUrlPrefix();
-        url.append("/intent/parse");
-
-        StringBuffer path = getPathPrefix();
-        path.append("/intent/parse");
-
-        return request(url.toString(), "POST", path.toString(), new JSONObject());
-    }
-
-    /**
      * 检索知识库
      *
      * @param userId 用户唯一标识
@@ -663,6 +638,75 @@ public class Chatbot {
 
         return request(url.toString(), "DELETE", path.toString(), null);
     }
+
+
+    /**
+     * 创建意图识别会话
+     * 此处支持请求生产版本
+     * @param userId
+     * @param channel
+     * @return
+     * @throws ChatbotException
+     */
+    public JSONObject intentsession(final String userId, String channel) throws  ChatbotException {
+        JSONObject body = new JSONObject();
+        body.put("uid", userId);
+        body.put("channel", channel);
+
+        StringBuffer url = getUrlPrefix();
+        url.append("/clause/prover/session");
+
+        StringBuffer path = getPathPrefix();
+        path.append("/clause/prover/session");
+
+        return request(url.toString(), "POST", path.toString(), body);
+    }
+
+    /**
+     * 根据意图识别会话ID获得会话详情
+     * @param sessionId
+     * @return
+     * @throws ChatbotException
+     */
+    public JSONObject intentsession(final String sessionId) throws ChatbotException {
+
+        StringBuffer url = getUrlPrefix();
+        url.append("/clause/prover/session/");
+        url.append(sessionId);
+
+        StringBuffer path = getPathPrefix();
+        path.append("/clause/prover/session/");
+        path.append(sessionId);
+
+        return request(url.toString(), "GET", path.toString(), null);
+    }
+
+    /**
+     * 进行意图识别对话
+     * @param sessionId 会话ID
+     * @param textMessage 文本内容
+     * @return
+     * @throws ChatbotException
+     */
+    public JSONObject intent(String sessionId, String textMessage) throws ChatbotException {
+        JSONObject body = new JSONObject();
+        JSONObject session = new JSONObject();
+        session.put("id", sessionId);
+        JSONObject message = new JSONObject();
+        message.put("textMessage", textMessage);
+        body.put("session", session);
+        body.put("message", message);
+
+        StringBuffer url = getUrlPrefix();
+        url.append("/clause/prover/chat");
+
+        StringBuffer path = getPathPrefix();
+        path.append("/clause/prover/chat");
+
+        return request(url.toString(), "POST", path.toString(), body);
+    }
+
+
 
     /**
      * 获得聊天机器人用户列表

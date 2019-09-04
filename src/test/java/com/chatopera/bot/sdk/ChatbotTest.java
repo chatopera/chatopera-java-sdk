@@ -47,9 +47,10 @@ public class ChatbotTest extends TestCase {
 
     public void setUp() {
         try {
-            String clientId = "xx";
-            String secret = "f29418c5f61dc7209721f93110ab7cd8";
-            this.cb = new Chatbot(clientId, secret);
+            String clientId = "xxx";
+            String secret = "xxx";
+            String provider = "xxx";
+            this.cb = new Chatbot(clientId, secret, provider);
         } catch (ChatbotException e) {
             e.printStackTrace();
         } catch (MalformedURLException e) {
@@ -286,6 +287,43 @@ public class ChatbotTest extends TestCase {
             JSONObject resp = this.cb.faqcategorydelete("tXwSUy8Yy");
             System.out.print("[testFaq] faqcategorydelete " + resp.toString());
         } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    /**
+     * 创建意图识别会话
+     */
+    public void testIntentSession(){
+        try {
+            JSONObject resp = this.cb.intentsession("uid007", "javasdk");
+            System.out.print("[testIntentSession] intent session " + resp.toString());
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 获取意图识别会话详情
+     */
+    public void testIntentSessionDetail(){
+        try {
+            JSONObject resp = this.cb.intentsession("1670B76CA89B998EFFC7AE7400000000");
+            System.out.print("[testIntentSessionDetail] intent session " + resp.toString());
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 和意图识别对话
+     */
+    public void testIntent(){
+        try {
+            JSONObject resp = this.cb.intent("1670B76CA89B998EFFC7AE7400000000", "最近有什么好书");
+            System.out.print("[testIntent] intent  " + resp.toString());
+        }catch(Exception e){
             e.printStackTrace();
         }
     }
