@@ -643,8 +643,8 @@ public class Chatbot {
     /**
      * 创建意图识别会话
      * 此处支持请求生产版本
-     * @param userId
-     * @param channel
+     * @param userId 用户唯一标识
+     * @param channel 渠道标识，代表不同渠道的唯一标识，比如QQ，公众号，开发者自定义
      * @return
      * @throws ChatbotException
      */
@@ -663,7 +663,7 @@ public class Chatbot {
     }
 
     /**
-     * 根据意图识别会话ID获得会话详情
+     * 获得指定意图识别会话ID的详情
      * @param sessionId
      * @return
      * @throws ChatbotException
