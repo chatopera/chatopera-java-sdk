@@ -55,8 +55,9 @@ public class Chatbot {
      * @throws MalformedURLException
      */
     public Chatbot(final String clientId, final String clientSecret, final String baseUrl) throws ChatbotException, MalformedURLException {
-        if (StringUtils.isBlank(baseUrl))
+        if (StringUtils.isBlank(baseUrl)) {
             throw new ChatbotException("智能问答引擎URL不能为空。");
+        }
 
         if (StringUtils.isNotBlank(clientId) && StringUtils.isNotBlank(clientSecret)) {
             this.clientId = clientId;
@@ -168,20 +169,38 @@ public class Chatbot {
         return request(url.toString(), "GET", path.toString(), null);
     }
 
+
     /**
      * 和机器人对话
      *
      * @param userId      用户唯一标识
      * @param textMessage 文字消息
      * @return
+     * @throws ChatbotException
      */
     public JSONObject conversation(final String userId, final String textMessage) throws ChatbotException {
+        return conversation(userId, textMessage, 0.8, 0.6);
+    }
+
+    /**
+     * 和机器人对话
+     *
+     * @param userId
+     * @param textMessage
+     * @param faqThresholdBestReply
+     * @param faqThresholdSuggReply
+     * @return
+     * @throws ChatbotException
+     */
+    public JSONObject conversation(final String userId, final String textMessage, final double faqThresholdBestReply, final double faqThresholdSuggReply) throws ChatbotException {
         v(this.clientId, userId, textMessage);
 
         JSONObject body = new JSONObject();
         body.put("fromUserId", userId);
         body.put("textMessage", textMessage);
         body.put("isDebug", false);
+        body.put("faq_best_reply", faqThresholdBestReply);
+        body.put("faq_sugg_reply", faqThresholdSuggReply);
 
         StringBuffer url = getUrlPrefix();
         url.append("/conversation/query");
@@ -195,17 +214,33 @@ public class Chatbot {
     /**
      * 检索知识库
      *
-     * @param userId 用户唯一标识
+     * @param userId      用户唯一标识
      * @param textMessage 文字消息
      * @return
      * @throws ChatbotException
      */
     public JSONObject faq(final String userId, final String textMessage) throws ChatbotException {
+        return faq(userId, textMessage, 0.8, 0.6);
+    }
+
+
+    /**
+     * 检索知识库
+     * @param userId
+     * @param textMessage
+     * @param faqThresholdBestReply
+     * @param faqThresholdSuggReply
+     * @return
+     * @throws ChatbotException
+     */
+    public JSONObject faq(final String userId, final String textMessage, final double faqThresholdBestReply, final double faqThresholdSuggReply) throws ChatbotException {
         v(this.clientId, userId, textMessage);
         JSONObject body = new JSONObject();
         body.put("fromUserId", userId);
         body.put("query", textMessage);
         body.put("isDebug", false);
+        body.put("faq_best_reply", faqThresholdBestReply);
+        body.put("faq_sugg_reply", faqThresholdSuggReply);
 
         StringBuffer url = getUrlPrefix();
         url.append("/faq/query");
@@ -249,7 +284,7 @@ public class Chatbot {
         }
 
         // 分类
-        if(StringUtils.isNotBlank(category)){
+        if (StringUtils.isNotBlank(category)) {
             url.append("&category=");
             url.append(category);
         }
@@ -267,7 +302,7 @@ public class Chatbot {
         }
 
         // 分类
-        if(StringUtils.isNotBlank(category)){
+        if (StringUtils.isNotBlank(category)) {
             path.append("&category=");
             path.append(category);
         }
@@ -277,16 +312,18 @@ public class Chatbot {
 
     /**
      * 创建知识库的问答对
-     * @param post 标准问的问题
-     * @param reply 标准问的回答
-     * @param enabled 是否启用，默认为 false
+     *
+     * @param post       标准问的问题
+     * @param reply      标准问的回答
+     * @param enabled    是否启用，默认为 false
      * @param categories 类别，是分类标识的数组，并不支持分类名称，必须使用分类标识
      * @return
      * @throws ChatbotException
      */
     public JSONObject faqcreate(final String post, final String reply, boolean enabled, final List<String> categories) throws ChatbotException {
-        if (StringUtils.isBlank(post) || StringUtils.isBlank(reply))
+        if (StringUtils.isBlank(post) || StringUtils.isBlank(reply)) {
             throw new ChatbotException("Invalid post or reply");
+        }
 
         StringBuffer url = getUrlPrefix();
         url.append("/faq/database");
@@ -299,7 +336,7 @@ public class Chatbot {
         body.put("post", post);
         body.put("reply", reply);
 
-        if(enabled){
+        if (enabled) {
             body.put("enabled", true);
         } else {
             body.put("enabled", false);
@@ -328,8 +365,9 @@ public class Chatbot {
      * @throws ChatbotException
      */
     public JSONObject faqdetail(final String id) throws ChatbotException {
-        if (StringUtils.isBlank(id))
+        if (StringUtils.isBlank(id)) {
             throw new ChatbotException("Invalid id");
+        }
 
         StringBuffer url = getUrlPrefix();
         url.append("/faq/database/");
@@ -354,8 +392,9 @@ public class Chatbot {
      * @throws ChatbotException
      */
     public JSONObject faqupdate(final String id, final String post, final String reply, boolean enabled, final List<String> categories) throws ChatbotException {
-        if (StringUtils.isBlank(id))
+        if (StringUtils.isBlank(id)) {
             throw new ChatbotException("Invalid id");
+        }
 
         StringBuffer url = getUrlPrefix();
         url.append("/faq/database/");
@@ -366,11 +405,13 @@ public class Chatbot {
         path.append(id);
 
         JSONObject obj = new JSONObject();
-        if (StringUtils.isNotBlank(post))
+        if (StringUtils.isNotBlank(post)) {
             obj.put("post", post);
+        }
 
-        if (StringUtils.isNotBlank(reply))
+        if (StringUtils.isNotBlank(reply)) {
             obj.put("reply", reply);
+        }
 
         if (enabled) {
             obj.put("enabled", true);
@@ -395,13 +436,14 @@ public class Chatbot {
     /**
      * 禁用知识库里一个问答对
      *
-     * @param id    问答对唯一标识
+     * @param id 问答对唯一标识
      * @return JSONObject
      * @throws ChatbotException
      */
     public JSONObject faqdisable(final String id) throws ChatbotException {
-        if (StringUtils.isBlank(id))
+        if (StringUtils.isBlank(id)) {
             throw new ChatbotException("Invalid id");
+        }
         return this.faqupdate(id, null, null, false, null);
     }
 
@@ -409,26 +451,28 @@ public class Chatbot {
     /**
      * 启用知识库里一个问答对
      *
-     * @param id    问答对唯一标识
+     * @param id 问答对唯一标识
      * @return JSONObject
      * @throws ChatbotException
      */
     public JSONObject faqenable(final String id) throws ChatbotException {
-        if (StringUtils.isBlank(id))
+        if (StringUtils.isBlank(id)) {
             throw new ChatbotException("Invalid id");
+        }
         return this.faqupdate(id, null, null, true, null);
     }
 
     /**
      * 删除知识库的一条记录，标准问和扩展问都被物理性删除
      *
-     * @param id    问答对唯一标识
+     * @param id 问答对唯一标识
      * @return
      * @throws ChatbotException
      */
     public JSONObject faqdelete(final String id) throws ChatbotException {
-        if (StringUtils.isBlank(id))
+        if (StringUtils.isBlank(id)) {
             throw new ChatbotException("Invalid id");
+        }
 
         StringBuffer url = getUrlPrefix();
         url.append("/faq/database/");
@@ -445,13 +489,14 @@ public class Chatbot {
     /**
      * 查询知识库标准问的扩展问列表
      *
-     * @param id    问答对唯一标识
+     * @param id 问答对唯一标识
      * @return
      * @throws ChatbotException
      */
     public JSONObject faqextend(final String id) throws ChatbotException {
-        if (StringUtils.isBlank(id))
+        if (StringUtils.isBlank(id)) {
             throw new ChatbotException("Invalid id");
+        }
 
         StringBuffer url = getUrlPrefix();
         url.append("/faq/database/");
@@ -469,13 +514,14 @@ public class Chatbot {
     /**
      * 创建知识库标准问的扩展问
      *
-     * @param id    问答对唯一标识
+     * @param id   问答对唯一标识
      * @param post 扩展问
      * @return JSONObject
      */
     public JSONObject faqextendcreate(final String id, final String post) throws ChatbotException {
-        if (StringUtils.isBlank(id) || StringUtils.isBlank(post))
+        if (StringUtils.isBlank(id) || StringUtils.isBlank(post)) {
             throw new ChatbotException("Invalid id or post");
+        }
 
         StringBuffer url = getUrlPrefix();
         url.append("/faq/database/");
@@ -496,13 +542,14 @@ public class Chatbot {
     /**
      * 更新知识库标准问的扩展问
      *
-     * @param id    问答对唯一标识
+     * @param id   问答对唯一标识
      * @param post 扩展问
      * @return JSONObject
      */
     public JSONObject faqextendupdate(final String id, final String extendId, final String post) throws ChatbotException {
-        if (StringUtils.isBlank(id) || StringUtils.isBlank(post) || StringUtils.isBlank(extendId))
+        if (StringUtils.isBlank(id) || StringUtils.isBlank(post) || StringUtils.isBlank(extendId)) {
             throw new ChatbotException("Invalid id, post or extendId");
+        }
 
         StringBuffer url = getUrlPrefix();
         url.append("/faq/database/");
@@ -525,13 +572,14 @@ public class Chatbot {
 
     /**
      * 删除知识库标准问的扩展问
-     * @param id    问答对唯一标识
-     * @param extendId  扩展问唯一标识
+     *
+     * @param id       问答对唯一标识
+     * @param extendId 扩展问唯一标识
      * @return
      * @throws ChatbotException
      */
     public JSONObject faqextenddelete(final String id, final String extendId) throws ChatbotException {
-        if(StringUtils.isBlank(id) || StringUtils.isBlank(extendId)){
+        if (StringUtils.isBlank(id) || StringUtils.isBlank(extendId)) {
             throw new ChatbotException("Invalid id or extendId");
         }
 
@@ -553,6 +601,7 @@ public class Chatbot {
 
     /**
      * 获得知识库分类信息
+     *
      * @return
      * @throws ChatbotException
      */
@@ -568,14 +617,16 @@ public class Chatbot {
 
     /**
      * 创建知识库分类
-     * @param label 分类名称
+     *
+     * @param label    分类名称
      * @param parentId 父节点的标识， 即上级分类的标识
      * @return
      * @throws ChatbotException
      */
     public JSONObject faqcategorycreate(final String label, final String parentId) throws ChatbotException {
-        if(StringUtils.isBlank(label))
+        if (StringUtils.isBlank(label)) {
             throw new ChatbotException("Invalid label");
+        }
 
         StringBuffer url = getUrlPrefix();
         url.append("/faq/categories");
@@ -586,8 +637,9 @@ public class Chatbot {
         JSONObject body = new JSONObject();
         body.put("label", label);
 
-        if(StringUtils.isNotBlank(parentId))
+        if (StringUtils.isNotBlank(parentId)) {
             body.put("parentId", parentId);
+        }
 
         return request(url.toString(), "POST", path.toString(), body);
     }
@@ -595,14 +647,16 @@ public class Chatbot {
 
     /**
      * 更新知识库分类
+     *
      * @param value 知识库分类的标识
      * @param label 知识库分类名称
      * @return
      * @throws ChatbotException
      */
     public JSONObject faqcategoryupdate(final String value, final String label) throws ChatbotException {
-        if(StringUtils.isBlank(label)|| StringUtils.isBlank(value))
+        if (StringUtils.isBlank(label) || StringUtils.isBlank(value)) {
             throw new ChatbotException("Invalid label or value");
+        }
 
         StringBuffer url = getUrlPrefix();
         url.append("/faq/categories");
@@ -620,13 +674,15 @@ public class Chatbot {
 
     /**
      * 删除知识库分类
+     *
      * @param value 知识库分类的标识
      * @return
      * @throws ChatbotException
      */
     public JSONObject faqcategorydelete(final String value) throws ChatbotException {
-        if(StringUtils.isBlank(value))
+        if (StringUtils.isBlank(value)) {
             throw new ChatbotException("Invalid value");
+        }
 
         StringBuffer url = getUrlPrefix();
         url.append("/faq/categories/");
@@ -643,12 +699,13 @@ public class Chatbot {
     /**
      * 创建意图识别会话
      * 此处支持请求生产版本
-     * @param userId 用户唯一标识
+     *
+     * @param userId  用户唯一标识
      * @param channel 渠道标识，代表不同渠道的唯一标识，比如QQ，公众号，开发者自定义
      * @return
      * @throws ChatbotException
      */
-    public JSONObject intentsession(final String userId, String channel) throws  ChatbotException {
+    public JSONObject intentsession(final String userId, String channel) throws ChatbotException {
         JSONObject body = new JSONObject();
         body.put("uid", userId);
         body.put("channel", channel);
@@ -664,6 +721,7 @@ public class Chatbot {
 
     /**
      * 获得指定意图识别会话ID的详情
+     *
      * @param sessionId
      * @return
      * @throws ChatbotException
@@ -681,15 +739,31 @@ public class Chatbot {
         return request(url.toString(), "GET", path.toString(), null);
     }
 
+
     /**
      * 进行意图识别对话
-     * @param sessionId 会话ID
-     * @param textMessage 文本内容
+     *
+     * @param sessionId   会话ID
+     * @param userId      用户唯一标识，需要和创建会话时保持一致，否则会话会错乱
+     * @param textMessage 消息文本内容
      * @return
      * @throws ChatbotException
      */
-    public JSONObject intent(String sessionId, String textMessage) throws ChatbotException {
+    public JSONObject intent(final String sessionId, final String userId, final String textMessage) throws ChatbotException {
+        if (StringUtils.isBlank(sessionId)) {
+            throw new ChatbotException("[intent] 不合法的会话ID。");
+        }
+
+        if (StringUtils.isBlank(userId)) {
+            throw new ChatbotException("[intent] 不合法的用户标识。");
+        }
+
+        if (StringUtils.isBlank(textMessage)) {
+            throw new ChatbotException("[intent] 不合法的消息内容。");
+        }
+
         JSONObject body = new JSONObject();
+        body.put("fromUserId", userId);
         JSONObject session = new JSONObject();
         session.put("id", sessionId);
         JSONObject message = new JSONObject();
@@ -705,7 +779,6 @@ public class Chatbot {
 
         return request(url.toString(), "POST", path.toString(), body);
     }
-
 
 
     /**
@@ -799,8 +872,9 @@ public class Chatbot {
         path.append("/mute");
 
         JSONObject response = request(url.toString(), "POST", path.toString(), new JSONObject());
-        if (response.getInt("rc") != 0)
+        if (response.getInt("rc") != 0) {
             throw new ChatbotException(response.toString());
+        }
     }
 
     /**
@@ -821,8 +895,9 @@ public class Chatbot {
         path.append("/unmute");
 
         JSONObject response = request(url.toString(), "POST", path.toString(), new JSONObject());
-        if (response.getInt("rc") != 0)
+        if (response.getInt("rc") != 0) {
             throw new ChatbotException(response.toString());
+        }
     }
 
     /**
@@ -846,8 +921,9 @@ public class Chatbot {
         JSONObject response = request(url.toString(), "POST", path.toString(), new JSONObject());
         System.out.println("ismute " + response.toString());
 
-        if (response.getInt("rc") != 0)
+        if (response.getInt("rc") != 0) {
             throw new ChatbotException(response.toString());
+        }
 
         return response.getJSONObject("data").getBoolean("mute");
     }
@@ -906,14 +982,17 @@ public class Chatbot {
      * @param textMessage
      */
     private void v(final String chatbotID, final String fromUserId, final String textMessage) throws ChatbotException {
-        if (StringUtils.isBlank(chatbotID))
+        if (StringUtils.isBlank(chatbotID)) {
             throw new ChatbotException("[conversation] 不合法的聊天机器人标识。");
+        }
 
-        if (StringUtils.isBlank(fromUserId))
+        if (StringUtils.isBlank(fromUserId)) {
             throw new ChatbotException("[conversation] 不合法的用户标识。");
+        }
 
-        if (StringUtils.isBlank(textMessage))
+        if (StringUtils.isBlank(textMessage)) {
             throw new ChatbotException("[conversation] 不合法的消息内容。");
+        }
     }
 
     /**
