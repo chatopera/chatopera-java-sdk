@@ -226,6 +226,7 @@ public class Chatbot {
 
     /**
      * 检索知识库
+     *
      * @param userId
      * @param textMessage
      * @param faqThresholdBestReply
@@ -927,6 +928,76 @@ public class Chatbot {
 
         return response.getJSONObject("data").getBoolean("mute");
     }
+
+
+    /**
+     * 技能：心理问答API 查询接口
+     *
+     * @param query 查询条件
+     * @return
+     * @throws ChatbotException
+     */
+    public JSONObject psychSearch(final String query) throws ChatbotException {
+        return psychSearch(query, 0.2);
+    }
+
+    /**
+     * 技能：心理问答API 查询接口
+     *
+     * @param query     查询条件
+     * @param threshold 召回阀值
+     * @return
+     * @throws ChatbotException
+     */
+    public JSONObject psychSearch(final String query, final double threshold) throws ChatbotException {
+        if (StringUtils.isBlank(query) || threshold > 1.0 || threshold <= 0) {
+            throw new ChatbotException("Invalid query or threshold");
+        }
+
+        StringBuffer url = getUrlPrefix();
+        url.append("/skills/psych/search");
+
+        StringBuffer path = getPathPrefix();
+        path.append("/skills/psych/search");
+
+
+        JSONObject body = new JSONObject();
+        body.put("query", query);
+        body.put("threshold", threshold);
+
+        return request(url.toString(), "POST", path.toString(), body);
+    }
+
+    /**
+     * 技能：心理问答API 聊天接口
+     * @param channel       渠道名称
+     * @param channelId     渠道ID
+     * @param userId        用户ID
+     * @param textMessage   文本消息
+     * @return
+     * @throws ChatbotException
+     */
+    public JSONObject psychChat(final String channel, final String channelId, final String userId, final String textMessage) throws ChatbotException {
+        if (StringUtils.isBlank(channel) || StringUtils.isBlank(channelId) || StringUtils.isBlank(userId) || StringUtils.isBlank(textMessage)) {
+            throw new ChatbotException("Invalid parameters.");
+        }
+
+        StringBuffer url = getUrlPrefix();
+        url.append("/skills/psych/chat");
+
+        StringBuffer path = getPathPrefix();
+        path.append("/skills/psych/chat");
+
+
+        JSONObject body = new JSONObject();
+        body.put("channel", channel);
+        body.put("channelId", channelId);
+        body.put("userId", userId);
+        body.put("textMessage", textMessage);
+
+        return request(url.toString(), "POST", path.toString(), body);
+    }
+
 
     private JSONObject request(final String url, final String method, final String path, final JSONObject body) throws ChatbotException {
         System.out.println("[request] url: " + url + ", method: " + method + ", path: " + path);

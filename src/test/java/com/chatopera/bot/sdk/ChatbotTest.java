@@ -47,9 +47,23 @@ public class ChatbotTest extends TestCase {
 
     public void setUp() {
         try {
-            String clientId = "xxx";
-            String secret = "xxx";
-            String provider = "xxx";
+
+            // Svt System
+//            String clientId = "5d72168381df8400178e3952";
+//            String secret = "f0fc91ac86e10b09cdeec15793c9f18c";
+//            String provider = "http://165.192.71.23:6558";
+
+            // Dev System
+//            String clientId = "5d6e5e71f401950017599143";
+//            String secret = "37d7a4c52b4311dc9694dd9a5628d8a8";
+//            String provider = "http://165.192.71.23:5558";
+
+            // Production
+            String clientId = "5e847b30bd822e0017ed9bce";
+            String secret = "b9ec7a3af7cf41e62f3c850009fe61dc";
+//            String provider = "http://123.56.191.5:5558";
+            String provider = "https://bot.chatopera.com";
+
             this.cb = new Chatbot(clientId, secret, provider);
         } catch (ChatbotException e) {
             e.printStackTrace();
@@ -309,7 +323,7 @@ public class ChatbotTest extends TestCase {
      */
     public void testIntentSessionDetail(){
         try {
-            JSONObject resp = this.cb.intentsession("1670B76CA89B998EFFC7AE7400000000");
+            JSONObject resp = this.cb.intentsession("F340C30ADE96C0B9F4FD7B3500000000");
             System.out.print("[testIntentSessionDetail] intent session " + resp.toString());
         } catch (Exception e){
             e.printStackTrace();
@@ -321,12 +335,39 @@ public class ChatbotTest extends TestCase {
      */
     public void testIntent(){
         try {
-            JSONObject resp = this.cb.intent("1670B76CA89B998EFFC7AE7400000000", "最近有什么好书");
+            JSONObject resp = this.cb.intent("CE6A44B3718BF5DA1C4AFA8B00000000", "uid007","送到远洋国际");
             System.out.print("[testIntent] intent  " + resp.toString());
         }catch(Exception e){
             e.printStackTrace();
         }
     }
+
+    /**
+     * 测试技能：心理问答 API 查询接口
+     * ./admin/test.sh ChatbotTest#testPsychSearch
+     */
+    public void testPsychSearch(){
+        try {
+            JSONObject resp = this.cb.psychSearch("确定自己是否有抑郁倾向，想要知道自己当下该怎么办", 0.2);
+            System.out.print("[testPsychSearch] psychSearch  " + resp.toString());
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 测试技能：心理问答 API 聊天接口
+     * ./admin/test.sh ChatbotTest#testPsychChat
+     */
+    public void testPsychChat(){
+        try {
+            JSONObject resp = this.cb.psychChat("sdk", "appid001", "u001", "确定自己是否有抑郁倾向，想要知道自己当下该怎么办");
+            System.out.print("[testPsychChat] psychChat  " + resp.toString());
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+
 
     /***
      * TODO 知识库近义词管理
