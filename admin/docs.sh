@@ -12,5 +12,12 @@ rootDir=$(cd $baseDir/..;pwd)
 # main 
 [ -z "${BASH_SOURCE[0]}" -o "${BASH_SOURCE[0]}" = "$0" ] || return
 cd $baseDir/..
-mvn clean javadoc:javadoc
+rm -rf target
+mvn clean compile javadoc:javadoc
 echo "API Docs is built successfully. path:" $rootDir/"target/site/apidocs"
+
+if [ -d ~/chatopera/chatopera-sample-java/docs ]; then
+  cd target/site/apidocs
+  tar cf - .|(cd ~/chatopera/chatopera-sample-java/docs;tar xf -)
+fi
+
