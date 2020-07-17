@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Chatopera Inc, <https://www.chatopera.com>
+ * Copyright (C) 2018-2020 Chatopera Inc, <https://www.chatopera.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -119,27 +119,6 @@ public class Chatbot {
     }
 
     /**
-     * 通过ChatbotID检查一个聊天机器人是否存在
-     *
-     * @return
-     */
-    public boolean exists() throws ChatbotException {
-        try {
-            JSONObject result = this.details();
-            int rc = result.getInt("rc");
-            if (rc == 0) {
-                return true;
-            } else if (rc == 3) {
-                return false;
-            } else {
-                throw new ChatbotException("查询聊天机器人异常返回。");
-            }
-        } catch (Exception e) {
-            throw new ChatbotException(e.toString());
-        }
-    }
-
-    /**
      * 生成认证信息
      *
      * @param method
@@ -158,17 +137,134 @@ public class Chatbot {
     }
 
     /**
+     * 核心访问接口
+     *
+     * @param method  PUT, POST, GET, DELETE, etc.
+     * @param path    /faq/xxx
+     * @param payload JSONObject body
+     * @return
+     * @throws ChatbotException
+     */
+    public Response command(final String method, String path, final JSONObject payload) throws ChatbotException {
+        /**
+         * 准备参数
+         */
+        StringBuffer url = getUrlPrefix();
+        StringBuffer fullPath = getPathPrefix();
+
+        // 自动添加 sdklang 参数
+        if (StringUtils.isNotBlank(path)) {
+            String[] pairs = path.split("&");
+            if (pairs.length > 1 && path.contains("?")) {
+                path += "&sdklang=java";
+            } else {
+                path += "?sdklang=java";
+            }
+        } else {
+            path = "/?sdklang=java";
+        }
+
+        if (StringUtils.isNotBlank(path)) {
+            url.append(path);
+            fullPath.append(path);
+        }
+
+        /**
+         * 发送请求
+         */
+        JSONObject result;
+        try {
+            switch (method) {
+                case "GET":
+                    result = RestAPI.get(url.toString(), null, auth(method, fullPath.toString()));
+                    break;
+                case "POST":
+                    result = RestAPI.post(url.toString(), payload, null, auth(method, fullPath.toString()));
+                    break;
+                case "DELETE":
+                    result = RestAPI.delete(url.toString(), auth(method, fullPath.toString()));
+                    break;
+                case "PUT":
+                    result = RestAPI.put(url.toString(), payload, null, auth(method, fullPath.toString()));
+                    break;
+                default:
+                    throw new ChatbotException("Invalid requested method, only GET, POST, DELETE, PUT are supported.");
+            }
+        } catch (Exception e) {
+            throw new ChatbotException(e.toString());
+        }
+
+        /**
+         * 处理返回值
+         */
+        purge(result);
+        Response resp = new Response();
+        resp.setRc(result.getInt("rc"));
+
+        if (result.has("error")) {
+            try {
+                resp.setError(result.getString("error"));
+            } catch (Exception e) {
+                resp.setError(result.get("error").toString());
+            }
+        }
+
+        if (result.has("msg"))
+            resp.setMsg(result.getString("msg"));
+
+        if (result.has("data"))
+            resp.setData(result.get("data"));
+
+        return resp;
+    }
+
+    /**
+     * 核心访问接口
+     *
+     * @param method PUT, POST, etc.
+     * @param path   /faq/xxxx
+     * @return
+     * @throws ChatbotException
+     */
+    public Response command(final String method, final String path) throws ChatbotException {
+        return command(method, path, null);
+    }
+
+
+    /**
      * 获取聊天机器人详情
      *
      * @return JSONObject
      * @throws ChatbotException
+     * @deprecated use `Chatbot#command` API instead, removed in 2020-10
      */
     public JSONObject details() throws ChatbotException {
-        StringBuffer url = getUrlPrefix();
-        StringBuffer path = getPathPrefix();
-        return request(url.toString(), "GET", path.toString(), null);
+        Response resp = command("GET", "/");
+        return resp.toJSON();
     }
 
+
+    /**
+     * 通过ChatbotID检查一个聊天机器人是否存在
+     *
+     * @return
+     * @throws ChatbotException
+     * @deprecated use `Chatbot#command` API instead, removed in 2020-10
+     */
+    public boolean exists() throws ChatbotException {
+        try {
+            Response resp = command("GET", "/");
+            if (resp.getRc() == 0) {
+                return true;
+            } else if (resp.getRc() == 3) {
+                return false;
+            } else {
+                throw new ChatbotException("查询聊天机器人异常返回。");
+            }
+        } catch (Exception e) {
+            throw new ChatbotException(e.toString());
+        }
+    }
 
     /**
      * 和机器人对话
@@ -177,10 +273,12 @@ public class Chatbot {
      * @param textMessage 文字消息
      * @return
      * @throws ChatbotException
+     * @deprecated use `Chatbot#command` API instead, removed in 2020-10
      */
     public JSONObject conversation(final String userId, final String textMessage) throws ChatbotException {
         return conversation(userId, textMessage, 0.8, 0.6);
     }
+
 
     /**
      * 和机器人对话
@@ -191,6 +289,7 @@ public class Chatbot {
      * @param faqThresholdSuggReply
      * @return
      * @throws ChatbotException
+     * @deprecated use `Chatbot#command` API instead, removed in 2020-10
      */
     public JSONObject conversation(final String userId, final String textMessage, final double faqThresholdBestReply, final double faqThresholdSuggReply) throws ChatbotException {
         v(this.clientId, userId, textMessage);
@@ -202,13 +301,8 @@ public class Chatbot {
         body.put("faq_best_reply", faqThresholdBestReply);
         body.put("faq_sugg_reply", faqThresholdSuggReply);
 
-        StringBuffer url = getUrlPrefix();
-        url.append("/conversation/query");
-
-        StringBuffer path = getPathPrefix();
-        path.append("/conversation/query");
-
-        return request(url.toString(), "POST", path.toString(), body);
+        Response resp = command("POST", "/conversation/query", body);
+        return resp.toJSON();
     }
 
     /**
@@ -218,6 +312,7 @@ public class Chatbot {
      * @param textMessage 文字消息
      * @return
      * @throws ChatbotException
+     * @deprecated use `Chatbot#command` API instead, removed in 2020-10
      */
     public JSONObject faq(final String userId, final String textMessage) throws ChatbotException {
         return faq(userId, textMessage, 0.8, 0.6);
@@ -233,6 +328,7 @@ public class Chatbot {
      * @param faqThresholdSuggReply
      * @return
      * @throws ChatbotException
+     * @deprecated use `Chatbot#command` API instead, removed in 2020-10
      */
     public JSONObject faq(final String userId, final String textMessage, final double faqThresholdBestReply, final double faqThresholdSuggReply) throws ChatbotException {
         v(this.clientId, userId, textMessage);
@@ -243,13 +339,9 @@ public class Chatbot {
         body.put("faq_best_reply", faqThresholdBestReply);
         body.put("faq_sugg_reply", faqThresholdSuggReply);
 
-        StringBuffer url = getUrlPrefix();
-        url.append("/faq/query");
+        Response resp = command("POST", "/faq/query", body);
 
-        StringBuffer path = getPathPrefix();
-        path.append("/faq/query");
-
-        return request(url.toString(), "POST", path.toString(), body);
+        return resp.toJSON();
     }
 
     /**
@@ -262,8 +354,9 @@ public class Chatbot {
      * @return
      * @throws ChatbotException
      * @throws UnsupportedEncodingException
+     * @deprecated use `Chatbot#command` API instead, removed in 2020-10
      */
-    public JSONObject faqlist(final String query, final String category, int page, int pageSize) throws ChatbotException, UnsupportedEncodingException {
+    public JSONObject faqlist(final String query, final String category, int page, int pageSize) throws ChatbotException, UnsupportedEncodingException, UnsupportedEncodingException {
         if (page == 0) {
             page = 1;
         }
@@ -272,25 +365,7 @@ public class Chatbot {
             pageSize = 30;
         }
 
-        StringBuffer url = getUrlPrefix();
-        url.append("/faq/database?page=");
-        url.append(page);
-        url.append("&limit=");
-        url.append(pageSize);
-
-        // 检索条件
-        if (StringUtils.isNotBlank(query)) {
-            url.append("&q=");
-            url.append(URLEncoder.encode(query, "UTF-8"));
-        }
-
-        // 分类
-        if (StringUtils.isNotBlank(category)) {
-            url.append("&category=");
-            url.append(category);
-        }
-
-        StringBuffer path = getPathPrefix();
+        StringBuffer path = new StringBuffer();
         path.append("/faq/database?page=");
         path.append(page);
         path.append("&limit=");
@@ -308,8 +383,10 @@ public class Chatbot {
             path.append(category);
         }
 
-        return request(url.toString(), "GET", path.toString(), null);
+        Response resp = command("GET", path.toString());
+        return resp.toJSON();
     }
+
 
     /**
      * 创建知识库的问答对
@@ -320,22 +397,25 @@ public class Chatbot {
      * @param categories 类别，是分类标识的数组，并不支持分类名称，必须使用分类标识
      * @return
      * @throws ChatbotException
+     * @deprecated use `Chatbot#command` API instead, removed in 2020-10
      */
     public JSONObject faqcreate(final String post, final String reply, boolean enabled, final List<String> categories) throws ChatbotException {
         if (StringUtils.isBlank(post) || StringUtils.isBlank(reply)) {
             throw new ChatbotException("Invalid post or reply");
         }
 
-        StringBuffer url = getUrlPrefix();
-        url.append("/faq/database");
-
-        StringBuffer path = getPathPrefix();
-        path.append("/faq/database");
-
-
         JSONObject body = new JSONObject();
         body.put("post", post);
-        body.put("reply", reply);
+
+        // 支持多答案
+        JSONArray replies = new JSONArray();
+        JSONObject replyObj = new JSONObject();
+        replyObj.put("content", reply);
+        replyObj.put("rtype", "plain");
+        replyObj.put("enabled", true);
+        replies.put(replyObj);
+
+        body.put("replies", replies);
 
         if (enabled) {
             body.put("enabled", true);
@@ -354,7 +434,9 @@ public class Chatbot {
             body.put("categories", new JSONArray());
         }
 
-        return request(url.toString(), "POST", path.toString(), body);
+        Response resp = command("POST", "/faq/database", body);
+
+        return resp.toJSON();
     }
 
 
@@ -364,21 +446,19 @@ public class Chatbot {
      * @param id 问答对唯一标识
      * @return
      * @throws ChatbotException
+     * @deprecated use `Chatbot#command` API instead, removed in 2020-10
      */
     public JSONObject faqdetail(final String id) throws ChatbotException {
         if (StringUtils.isBlank(id)) {
             throw new ChatbotException("Invalid id");
         }
 
-        StringBuffer url = getUrlPrefix();
-        url.append("/faq/database/");
-        url.append(id);
-
-        StringBuffer path = getPathPrefix();
+        StringBuffer path = new StringBuffer();
         path.append("/faq/database/");
         path.append(id);
 
-        return request(url.toString(), "GET", path.toString(), null);
+        Response resp = command("GET", path.toString());
+        return resp.toJSON();
     }
 
     /**
@@ -391,27 +471,39 @@ public class Chatbot {
      * @param categories 类别，是分类标识的数组，并不支持分类名称，必须使用分类标识
      * @return JSONObject
      * @throws ChatbotException
+     * @deprecated use `Chatbot#command` API instead, removed in 2020-10
      */
     public JSONObject faqupdate(final String id, final String post, final String reply, boolean enabled, final List<String> categories) throws ChatbotException {
         if (StringUtils.isBlank(id)) {
             throw new ChatbotException("Invalid id");
         }
 
-        StringBuffer url = getUrlPrefix();
-        url.append("/faq/database/");
-        url.append(id);
+        // 获得replyLastUpdate
+        StringBuffer p = new StringBuffer();
+        p.append("/faq/database/");
+        p.append(id);
 
-        StringBuffer path = getPathPrefix();
+        Response prev = command("GET", p.toString());
+        String replyLastUpdate = ((JSONObject) (prev.getData())).getString("replyLastUpdate");
+
+        StringBuffer path = new StringBuffer();
         path.append("/faq/database/");
         path.append(id);
 
         JSONObject obj = new JSONObject();
+        obj.put("replyLastUpdate", replyLastUpdate);
         if (StringUtils.isNotBlank(post)) {
             obj.put("post", post);
         }
 
         if (StringUtils.isNotBlank(reply)) {
-            obj.put("reply", reply);
+            JSONArray replies = new JSONArray();
+            JSONObject replyObj = new JSONObject();
+            replyObj.put("content", reply);
+            replyObj.put("rtype", "plain");
+            replyObj.put("enabled", true);
+            replies.put(replyObj);
+            obj.put("replies", replies);
         }
 
         if (enabled) {
@@ -431,7 +523,8 @@ public class Chatbot {
             obj.put("categories", new JSONArray());
         }
 
-        return request(url.toString(), "PUT", path.toString(), obj);
+        Response resp = command("PUT", path.toString(), obj);
+        return resp.toJSON();
     }
 
     /**
@@ -440,6 +533,7 @@ public class Chatbot {
      * @param id 问答对唯一标识
      * @return JSONObject
      * @throws ChatbotException
+     * @deprecated use `Chatbot#command` API instead, removed in 2020-10
      */
     public JSONObject faqdisable(final String id) throws ChatbotException {
         if (StringUtils.isBlank(id)) {
@@ -455,6 +549,7 @@ public class Chatbot {
      * @param id 问答对唯一标识
      * @return JSONObject
      * @throws ChatbotException
+     * @deprecated use `Chatbot#command` API instead, removed in 2020-10
      */
     public JSONObject faqenable(final String id) throws ChatbotException {
         if (StringUtils.isBlank(id)) {
@@ -469,21 +564,19 @@ public class Chatbot {
      * @param id 问答对唯一标识
      * @return
      * @throws ChatbotException
+     * @deprecated use `Chatbot#command` API instead, removed in 2020-10
      */
     public JSONObject faqdelete(final String id) throws ChatbotException {
         if (StringUtils.isBlank(id)) {
             throw new ChatbotException("Invalid id");
         }
 
-        StringBuffer url = getUrlPrefix();
-        url.append("/faq/database/");
-        url.append(id);
-
-        StringBuffer path = getPathPrefix();
+        StringBuffer path = new StringBuffer();
         path.append("/faq/database/");
         path.append(id);
 
-        return request(url.toString(), "DELETE", path.toString(), null);
+        Response resp = command("DELETE", path.toString());
+        return resp.toJSON();
     }
 
 
@@ -493,23 +586,20 @@ public class Chatbot {
      * @param id 问答对唯一标识
      * @return
      * @throws ChatbotException
+     * @deprecated use `Chatbot#command` API instead, removed in 2020-10
      */
     public JSONObject faqextend(final String id) throws ChatbotException {
         if (StringUtils.isBlank(id)) {
             throw new ChatbotException("Invalid id");
         }
 
-        StringBuffer url = getUrlPrefix();
-        url.append("/faq/database/");
-        url.append(id);
-        url.append("/extend");
-
-        StringBuffer path = getPathPrefix();
+        StringBuffer path = new StringBuffer();
         path.append("/faq/database/");
         path.append(id);
         path.append("/extend");
 
-        return request(url.toString(), "GET", path.toString(), null);
+        Response resp = command("GET", path.toString());
+        return resp.toJSON();
     }
 
     /**
@@ -518,18 +608,14 @@ public class Chatbot {
      * @param id   问答对唯一标识
      * @param post 扩展问
      * @return JSONObject
+     * @deprecated use `Chatbot#command` API instead, removed in 2020-10
      */
     public JSONObject faqextendcreate(final String id, final String post) throws ChatbotException {
         if (StringUtils.isBlank(id) || StringUtils.isBlank(post)) {
             throw new ChatbotException("Invalid id or post");
         }
 
-        StringBuffer url = getUrlPrefix();
-        url.append("/faq/database/");
-        url.append(id);
-        url.append("/extend");
-
-        StringBuffer path = getPathPrefix();
+        StringBuffer path = new StringBuffer();
         path.append("/faq/database/");
         path.append(id);
         path.append("/extend");
@@ -537,7 +623,8 @@ public class Chatbot {
         JSONObject body = new JSONObject();
         body.put("post", post);
 
-        return request(url.toString(), "POST", path.toString(), body);
+        Response resp = command("POST", path.toString(), body);
+        return resp.toJSON();
     }
 
     /**
@@ -546,19 +633,14 @@ public class Chatbot {
      * @param id   问答对唯一标识
      * @param post 扩展问
      * @return JSONObject
+     * @deprecated use `Chatbot#command` API instead, removed in 2020-10
      */
     public JSONObject faqextendupdate(final String id, final String extendId, final String post) throws ChatbotException {
         if (StringUtils.isBlank(id) || StringUtils.isBlank(post) || StringUtils.isBlank(extendId)) {
             throw new ChatbotException("Invalid id, post or extendId");
         }
 
-        StringBuffer url = getUrlPrefix();
-        url.append("/faq/database/");
-        url.append(id);
-        url.append("/extend/");
-        url.append(extendId);
-
-        StringBuffer path = getPathPrefix();
+        StringBuffer path = new StringBuffer();
         path.append("/faq/database/");
         path.append(id);
         path.append("/extend/");
@@ -567,7 +649,8 @@ public class Chatbot {
         JSONObject body = new JSONObject();
         body.put("post", post);
 
-        return request(url.toString(), "PUT", path.toString(), body);
+        Response resp = command("PUT", path.toString(), body);
+        return resp.toJSON();
     }
 
 
@@ -578,25 +661,21 @@ public class Chatbot {
      * @param extendId 扩展问唯一标识
      * @return
      * @throws ChatbotException
+     * @deprecated use `Chatbot#command` API instead, removed in 2020-10
      */
     public JSONObject faqextenddelete(final String id, final String extendId) throws ChatbotException {
         if (StringUtils.isBlank(id) || StringUtils.isBlank(extendId)) {
             throw new ChatbotException("Invalid id or extendId");
         }
 
-        StringBuffer url = getUrlPrefix();
-        url.append("/faq/database/");
-        url.append(id);
-        url.append("/extend/");
-        url.append(extendId);
-
-        StringBuffer path = getPathPrefix();
+        StringBuffer path = new StringBuffer();
         path.append("/faq/database/");
         path.append(id);
         path.append("/extend/");
         path.append(extendId);
 
-        return request(url.toString(), "DELETE", path.toString(), null);
+        Response resp = command("DELETE", path.toString());
+        return resp.toJSON();
     }
 
 
@@ -605,15 +684,14 @@ public class Chatbot {
      *
      * @return
      * @throws ChatbotException
+     * @deprecated use `Chatbot#command` API instead, removed in 2020-10
      */
     public JSONObject faqcategories() throws ChatbotException {
-        StringBuffer url = getUrlPrefix();
-        url.append("/faq/categories");
-
-        StringBuffer path = getPathPrefix();
+        StringBuffer path = new StringBuffer();
         path.append("/faq/categories");
 
-        return request(url.toString(), "GET", path.toString(), null);
+        Response resp = command("GET", path.toString());
+        return resp.toJSON();
     }
 
     /**
@@ -623,14 +701,12 @@ public class Chatbot {
      * @param parentId 父节点的标识， 即上级分类的标识
      * @return
      * @throws ChatbotException
+     * @deprecated use `Chatbot#command` API instead, removed in 2020-10
      */
     public JSONObject faqcategorycreate(final String label, final String parentId) throws ChatbotException {
         if (StringUtils.isBlank(label)) {
             throw new ChatbotException("Invalid label");
         }
-
-        StringBuffer url = getUrlPrefix();
-        url.append("/faq/categories");
 
         StringBuffer path = getPathPrefix();
         path.append("/faq/categories");
@@ -642,7 +718,8 @@ public class Chatbot {
             body.put("parentId", parentId);
         }
 
-        return request(url.toString(), "POST", path.toString(), body);
+        Response resp = command("POST", path.toString(), body);
+        return resp.toJSON();
     }
 
 
@@ -653,23 +730,21 @@ public class Chatbot {
      * @param label 知识库分类名称
      * @return
      * @throws ChatbotException
+     * @deprecated use `Chatbot#command` API instead, removed in 2020-10
      */
     public JSONObject faqcategoryupdate(final String value, final String label) throws ChatbotException {
         if (StringUtils.isBlank(label) || StringUtils.isBlank(value)) {
             throw new ChatbotException("Invalid label or value");
         }
-
-        StringBuffer url = getUrlPrefix();
-        url.append("/faq/categories");
-
-        StringBuffer path = getPathPrefix();
+        StringBuffer path = new StringBuffer();
         path.append("/faq/categories");
 
         JSONObject body = new JSONObject();
         body.put("label", label);
         body.put("value", value);
 
-        return request(url.toString(), "PUT", path.toString(), body);
+        Response resp = command("PUT", path.toString(), body);
+        return resp.toJSON();
     }
 
 
@@ -679,21 +754,19 @@ public class Chatbot {
      * @param value 知识库分类的标识
      * @return
      * @throws ChatbotException
+     * @deprecated use `Chatbot#command` API instead, removed in 2020-10
      */
     public JSONObject faqcategorydelete(final String value) throws ChatbotException {
         if (StringUtils.isBlank(value)) {
             throw new ChatbotException("Invalid value");
         }
 
-        StringBuffer url = getUrlPrefix();
-        url.append("/faq/categories/");
-        url.append(value);
-
-        StringBuffer path = getPathPrefix();
+        StringBuffer path = new StringBuffer();
         path.append("/faq/categories/");
         path.append(value);
 
-        return request(url.toString(), "DELETE", path.toString(), null);
+        Response resp = command("DELETE", path.toString());
+        return resp.toJSON();
     }
 
 
@@ -705,19 +778,18 @@ public class Chatbot {
      * @param channel 渠道标识，代表不同渠道的唯一标识，比如QQ，公众号，开发者自定义
      * @return
      * @throws ChatbotException
+     * @deprecated use `Chatbot#command` API instead, removed in 2020-10
      */
     public JSONObject intentsession(final String userId, String channel) throws ChatbotException {
         JSONObject body = new JSONObject();
         body.put("uid", userId);
         body.put("channel", channel);
 
-        StringBuffer url = getUrlPrefix();
-        url.append("/clause/prover/session");
-
         StringBuffer path = getPathPrefix();
         path.append("/clause/prover/session");
 
-        return request(url.toString(), "POST", path.toString(), body);
+        Response resp = command("POST", path.toString(), body);
+        return resp.toJSON();
     }
 
     /**
@@ -726,18 +798,16 @@ public class Chatbot {
      * @param sessionId
      * @return
      * @throws ChatbotException
+     * @deprecated use `Chatbot#command` API instead, removed in 2020-10
      */
     public JSONObject intentsession(final String sessionId) throws ChatbotException {
 
-        StringBuffer url = getUrlPrefix();
-        url.append("/clause/prover/session/");
-        url.append(sessionId);
-
-        StringBuffer path = getPathPrefix();
+        StringBuffer path = new StringBuffer();
         path.append("/clause/prover/session/");
         path.append(sessionId);
 
-        return request(url.toString(), "GET", path.toString(), null);
+        Response resp = command("GET", path.toString());
+        return resp.toJSON();
     }
 
 
@@ -749,6 +819,7 @@ public class Chatbot {
      * @param textMessage 消息文本内容
      * @return
      * @throws ChatbotException
+     * @deprecated use `Chatbot#command` API instead, removed in 2020-10
      */
     public JSONObject intent(final String sessionId, final String userId, final String textMessage) throws ChatbotException {
         if (StringUtils.isBlank(sessionId)) {
@@ -772,13 +843,11 @@ public class Chatbot {
         body.put("session", session);
         body.put("message", message);
 
-        StringBuffer url = getUrlPrefix();
-        url.append("/clause/prover/chat");
-
-        StringBuffer path = getPathPrefix();
+        StringBuffer path = new StringBuffer();
         path.append("/clause/prover/chat");
 
-        return request(url.toString(), "POST", path.toString(), body);
+        Response resp = command("POST", path.toString(), body);
+        return resp.toJSON();
     }
 
 
@@ -789,6 +858,7 @@ public class Chatbot {
      * @param pageSize 页面大小
      * @return
      * @throws ChatbotException
+     * @deprecated use `Chatbot#command` API instead, removed in 2020-10
      */
     public JSONObject users(int page, int pageSize) throws ChatbotException {
         if (page == 0) {
@@ -799,21 +869,15 @@ public class Chatbot {
             pageSize = 30;
         }
 
-        StringBuffer url = getUrlPrefix();
-        url.append("/users?page=");
-        url.append(page);
-        url.append("&limit=");
-        url.append(pageSize);
-        url.append("&sortby=-lasttime");
-
-        StringBuffer path = getPathPrefix();
+        StringBuffer path = new StringBuffer();
         path.append("/users?page=");
         path.append(page);
         path.append("&limit=");
         path.append(pageSize);
         path.append("&sortby=-lasttime");
 
-        return request(url.toString(), "GET", path.toString(), null);
+        Response resp = command("GET", path.toString(), null);
+        return resp.toJSON();
     }
 
 
@@ -825,6 +889,7 @@ public class Chatbot {
      * @param pageSize 页面大小
      * @return
      * @throws ChatbotException
+     * @deprecated use `Chatbot#command` API instead, removed in 2020-10
      */
     public JSONObject chats(final String userId, int page, int pageSize) throws ChatbotException {
         if (page == 0) {
@@ -835,15 +900,6 @@ public class Chatbot {
             pageSize = 30;
         }
 
-        StringBuffer url = getUrlPrefix();
-        url.append("/users/");
-        url.append(userId);
-        url.append("/chats?page=");
-        url.append(page);
-        url.append("&limit=");
-        url.append(pageSize);
-        url.append("&sortby=-lasttime");
-
         StringBuffer path = getPathPrefix();
         path.append("/users/");
         path.append(userId);
@@ -853,28 +909,26 @@ public class Chatbot {
         path.append(pageSize);
         path.append("&sortby=-lasttime");
 
-        return request(url.toString(), "GET", path.toString(), null);
+        Response resp = command("GET", path.toString());
+        return resp.toJSON();
     }
 
     /**
      * 根据用户ID屏蔽一个用户
      *
      * @param userId 用户唯一标识
+     * @deprecated use `Chatbot#command` API instead, removed in 2020-10
      */
     public void mute(final String userId) throws ChatbotException {
-        StringBuffer url = getUrlPrefix();
-        url.append("/users/");
-        url.append(userId);
-        url.append("/mute");
-
-        StringBuffer path = getPathPrefix();
+        StringBuffer path = new StringBuffer();
         path.append("/users/");
         path.append(userId);
         path.append("/mute");
 
-        JSONObject response = request(url.toString(), "POST", path.toString(), new JSONObject());
-        if (response.getInt("rc") != 0) {
-            throw new ChatbotException(response.toString());
+        Response resp = command("POST", path.toString());
+
+        if (resp.getRc() != 0) {
+            throw new ChatbotException("Unable to mute user, bad response from server.");
         }
     }
 
@@ -883,21 +937,18 @@ public class Chatbot {
      *
      * @param userId 用户唯一标识
      * @throws ChatbotException
+     * @deprecated use `Chatbot#command` API instead, removed in 2020-10
      */
     public void unmute(final String userId) throws ChatbotException {
-        StringBuffer url = getUrlPrefix();
-        url.append("/users/");
-        url.append(userId);
-        url.append("/unmute");
-
-        StringBuffer path = getPathPrefix();
+        StringBuffer path = new StringBuffer();
         path.append("/users/");
         path.append(userId);
         path.append("/unmute");
 
-        JSONObject response = request(url.toString(), "POST", path.toString(), new JSONObject());
-        if (response.getInt("rc") != 0) {
-            throw new ChatbotException(response.toString());
+        Response resp = command("POST", path.toString());
+
+        if (resp.getRc() != 0) {
+            throw new ChatbotException("Unable to unmute user, bad response from server.");
         }
     }
 
@@ -907,26 +958,22 @@ public class Chatbot {
      * @param userId 用户唯一标识
      * @return
      * @throws ChatbotException
+     * @deprecated use `Chatbot#command` API instead, removed in 2020-10
      */
     public boolean ismute(final String userId) throws ChatbotException {
-        StringBuffer url = getUrlPrefix();
-        url.append("/users/");
-        url.append(userId);
-        url.append("/ismute");
 
-        StringBuffer path = getPathPrefix();
+        StringBuffer path = new StringBuffer();
         path.append("/users/");
         path.append(userId);
         path.append("/ismute");
 
-        JSONObject response = request(url.toString(), "POST", path.toString(), new JSONObject());
-        System.out.println("ismute " + response.toString());
+        Response resp = command("POST", path.toString());
 
-        if (response.getInt("rc") != 0) {
-            throw new ChatbotException(response.toString());
+        if (resp.getRc() != 0) {
+            throw new ChatbotException("Unable to check mute status, bad response from server.");
         }
 
-        return response.getJSONObject("data").getBoolean("mute");
+        return ((JSONObject) resp.getData()).getBoolean("mute");
     }
 
 
@@ -936,6 +983,7 @@ public class Chatbot {
      * @param query 查询条件
      * @return
      * @throws ChatbotException
+     * @deprecated use `Chatbot#command` API instead, removed in 2020-10
      */
     public JSONObject psychSearch(final String query) throws ChatbotException {
         return psychSearch(query, 0.2);
@@ -948,16 +996,14 @@ public class Chatbot {
      * @param threshold 召回阀值
      * @return
      * @throws ChatbotException
+     * @deprecated use `Chatbot#command` API instead, removed in 2020-10
      */
     public JSONObject psychSearch(final String query, final double threshold) throws ChatbotException {
         if (StringUtils.isBlank(query) || threshold > 1.0 || threshold <= 0) {
             throw new ChatbotException("Invalid query or threshold");
         }
 
-        StringBuffer url = getUrlPrefix();
-        url.append("/skills/psych/search");
-
-        StringBuffer path = getPathPrefix();
+        StringBuffer path = new StringBuffer();
         path.append("/skills/psych/search");
 
 
@@ -965,29 +1011,28 @@ public class Chatbot {
         body.put("query", query);
         body.put("threshold", threshold);
 
-        return request(url.toString(), "POST", path.toString(), body);
+        Response resp = command("POST", path.toString(), body);
+        return resp.toJSON();
     }
 
     /**
      * 技能：心理问答API 聊天接口
-     * @param channel       渠道名称
-     * @param channelId     渠道ID
-     * @param userId        用户ID
-     * @param textMessage   文本消息
+     *
+     * @param channel     渠道名称
+     * @param channelId   渠道ID
+     * @param userId      用户ID
+     * @param textMessage 文本消息
      * @return
      * @throws ChatbotException
+     * @deprecated use `Chatbot#command` API instead, removed in 2020-10
      */
     public JSONObject psychChat(final String channel, final String channelId, final String userId, final String textMessage) throws ChatbotException {
         if (StringUtils.isBlank(channel) || StringUtils.isBlank(channelId) || StringUtils.isBlank(userId) || StringUtils.isBlank(textMessage)) {
             throw new ChatbotException("Invalid parameters.");
         }
 
-        StringBuffer url = getUrlPrefix();
-        url.append("/skills/psych/chat");
-
-        StringBuffer path = getPathPrefix();
+        StringBuffer path = new StringBuffer();
         path.append("/skills/psych/chat");
-
 
         JSONObject body = new JSONObject();
         body.put("channel", channel);
@@ -995,37 +1040,10 @@ public class Chatbot {
         body.put("userId", userId);
         body.put("textMessage", textMessage);
 
-        return request(url.toString(), "POST", path.toString(), body);
+        Response resp = command("POST", path.toString(), body);
+        return resp.toJSON();
     }
 
-
-    private JSONObject request(final String url, final String method, final String path, final JSONObject body) throws ChatbotException {
-        System.out.println("[request] url: " + url + ", method: " + method + ", path: " + path);
-        JSONObject response;
-        try {
-            switch (method) {
-                case "GET":
-                    response = RestAPI.get(url, null, auth(method, path));
-                    break;
-                case "POST":
-                    response = RestAPI.post(url, body, null, auth(method, path));
-                    break;
-                case "DELETE":
-                    response = RestAPI.delete(url, auth(method, path));
-                    break;
-                case "PUT":
-                    response = RestAPI.put(url, body, null, auth(method, path));
-                    break;
-                default:
-                    throw new ChatbotException("Invalid request method.");
-            }
-        } catch (Exception e) {
-            throw new ChatbotException(e.toString());
-        }
-
-        purge(response);
-        return response;
-    }
 
     /**
      * remove data
@@ -1085,6 +1103,4 @@ public class Chatbot {
         StringBuffer sb = new StringBuffer();
         return sb.append(Constants.basePath).append("/").append(this.clientId);
     }
-
-
 }

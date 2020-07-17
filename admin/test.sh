@@ -11,6 +11,11 @@ baseDir=$(cd `dirname "$0"`;pwd)
 # main 
 [ -z "${BASH_SOURCE[0]}" -o "${BASH_SOURCE[0]}" = "$0" ] || return
 cd $baseDir/..
+if [ -f $baseDir/../.env ]; then
+  echo "Source localrc file:" $baseDir/../.env
+  source $baseDir/../.env
+fi
+
 if [ $# -eq 0 ]; then
     mvn test
 else
