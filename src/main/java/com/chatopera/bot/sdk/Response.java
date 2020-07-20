@@ -22,11 +22,14 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class Response {
-    private int rc;
-    private String msg;
-    private String error;
+    private int rc;                // 返回值 code
+    private String msg;            // 返回值 消息
+    private String error;          // 返回值 错误
     private JSONObject dataObj;
     private JSONArray dataArray;
+    private int total = -1;             // 分页，所有数据记录条数
+    private int current_page = -1;      // 分页，当前页码，（分页从1开始）
+    private int total_page = -1;        // 分页，所有页数
 
     public int getRc() {
         return rc;
@@ -112,6 +115,29 @@ public class Response {
         }
     }
 
+    public int getTotal() {
+        return total;
+    }
+
+    public void setTotal(int total) {
+        this.total = total;
+    }
+
+    public int getCurrent_page() {
+        return current_page;
+    }
+
+    public void setCurrent_page(int current_page) {
+        this.current_page = current_page;
+    }
+
+    public int getTotal_page() {
+        return total_page;
+    }
+
+    public void setTotal_page(int total_page) {
+        this.total_page = total_page;
+    }
 
     /**
      * response数据转为JSONObject
@@ -121,9 +147,29 @@ public class Response {
     public JSONObject toJSON() {
         JSONObject obj = new JSONObject();
         obj.put("rc", this.rc);
-        obj.put("msg", msg);
-        obj.put("error", error);
         obj.put("data", getData());
+
+        if (StringUtils.isNotBlank(msg)) {
+            obj.put("msg", msg);
+        }
+
+        if (StringUtils.isNotBlank(error)) {
+            obj.put("error", error);
+        }
+
+        // 增加分类信息
+        if (total >= 0) {
+            obj.put("total", total);
+        }
+
+        if (current_page >= 0) {
+            obj.put("current_page", current_page);
+        }
+
+        if (total_page >= 0) {
+            obj.put("total_page", total_page);
+        }
+
         return obj;
     }
 }
