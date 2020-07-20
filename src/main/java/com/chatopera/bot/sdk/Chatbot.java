@@ -285,21 +285,21 @@ public class Chatbot {
      *
      * @param userId
      * @param textMessage
-     * @param faqThresholdBestReply
-     * @param faqThresholdSuggReply
+     * @param faqBestReplyThreshold
+     * @param faqSuggReplyThreshold
      * @return
      * @throws ChatbotException
      * @deprecated use `Chatbot#command` API instead, removed in 2020-10
      */
-    public JSONObject conversation(final String userId, final String textMessage, final double faqThresholdBestReply, final double faqThresholdSuggReply) throws ChatbotException {
+    public JSONObject conversation(final String userId, final String textMessage, final double faqBestReplyThreshold, final double faqSuggReplyThreshold) throws ChatbotException {
         v(this.clientId, userId, textMessage);
 
         JSONObject body = new JSONObject();
         body.put("fromUserId", userId);
         body.put("textMessage", textMessage);
         body.put("isDebug", false);
-        body.put("faq_best_reply", faqThresholdBestReply);
-        body.put("faq_sugg_reply", faqThresholdSuggReply);
+        body.put("faqBestReplyThreshold", faqBestReplyThreshold);
+        body.put("faqSuggReplyThreshold", faqSuggReplyThreshold);
 
         Response resp = command("POST", "/conversation/query", body);
         return resp.toJSON();
@@ -324,20 +324,20 @@ public class Chatbot {
      *
      * @param userId
      * @param textMessage
-     * @param faqThresholdBestReply
-     * @param faqThresholdSuggReply
+     * @param faqBestReplyThreshold
+     * @param faqSuggReplyThreshold
      * @return
      * @throws ChatbotException
      * @deprecated use `Chatbot#command` API instead, removed in 2020-10
      */
-    public JSONObject faq(final String userId, final String textMessage, final double faqThresholdBestReply, final double faqThresholdSuggReply) throws ChatbotException {
+    public JSONObject faq(final String userId, final String textMessage, final double faqBestReplyThreshold, final double faqSuggReplyThreshold) throws ChatbotException {
         v(this.clientId, userId, textMessage);
         JSONObject body = new JSONObject();
         body.put("fromUserId", userId);
         body.put("query", textMessage);
         body.put("isDebug", false);
-        body.put("faq_best_reply", faqThresholdBestReply);
-        body.put("faq_sugg_reply", faqThresholdSuggReply);
+        body.put("faqBestReplyThreshold", faqBestReplyThreshold);
+        body.put("faqSuggReplyThreshold", faqSuggReplyThreshold);
 
         Response resp = command("POST", "/faq/query", body);
 
