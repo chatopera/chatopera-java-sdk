@@ -1,23 +1,26 @@
+<p align="center">
+  <b>Chatopera开发者平台：809987971， <a href="https://jq.qq.com/?_wv=1027&k=5S51T2a" target="_blank">点击链接加入群聊</a></b><br>
+  <img src="https://user-images.githubusercontent.com/3538629/48065864-d2da4080-e206-11e8-9f3b-a739719572dd.png" width="200">
+</p>
+
 # chatopera-java-sdk
-企业聊天机器人-Java开发工具包
+
+Chatopera 机器人平台， Java 开发工具包
 
 <p align="center">
-  <b>登录Chatopera聊天机器人平台</b><br>
+  <b>登录Chatopera云服务</b><br>
   <a href="http://bot.chatopera.com/" target="_blank">
       <img src="https://user-images.githubusercontent.com/3538629/48039685-e35fcc00-e1b0-11e8-81a9-f26d744fcd1d.png" width="800">
   </a>
 </p>
 
-  
 # [chatopera-java-sdk](https://github.com/chatopera/chatopera-java-sdk)
-企业聊天机器人-Java开发工具包
 
 [使用说明](https://github.com/chatopera/chatopera-sample-java/wiki)
 
 [示例程序](https://github.com/chatopera/chatopera-sample-java)
 
 [接口文档](https://chatopera.github.io/chatopera-sample-java/)
-
 
 # 贡献
 
@@ -28,7 +31,7 @@ mvn idea:idea # do your magic
 
 # 联系我们
 
-## SDK建议/PR
+## SDK 建议/PR
 
 请提交到[这里](https://github.com/chatopera/chatopera-sample-java/issues)。
 
@@ -37,16 +40,6 @@ mvn idea:idea # do your magic
 <a href="mailto:info@chatopera.com?subject=Chatopera%20Java%20SDK">
 info@chatopera.com
 </a>
-
-
-## 更多SDK
-
-<p align="center">
-  <b>集成面板</b><br>
-  <a href="http://bot.chatopera.com/" target="_blank">
-      <img src="https://user-images.githubusercontent.com/3538629/49215845-af20a980-f404-11e8-8272-5c4ffbdc17ca.png" width="800">
-  </a>
-</p>
 
 ## 开源许可协议
 
