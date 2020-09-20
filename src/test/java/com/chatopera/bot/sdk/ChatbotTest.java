@@ -16,14 +16,19 @@
 package com.chatopera.bot.sdk;
 
 import com.chatopera.bot.exception.ChatbotException;
+import com.chatopera.bot.utils.EnvUtil;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import org.apache.commons.io.FileUtils;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 public class ChatbotTest extends TestCase {
@@ -49,9 +54,10 @@ public class ChatbotTest extends TestCase {
 
     public void setUp() {
         try {
-            String clientId = Utils.getEnv("CLIENT_ID", "");
-            String secret = Utils.getEnv("CLIENT_SECRET", "");
-            String provider = Utils.getEnv("BOT_PROVIDER", "https://bot.chatopera.com");
+            String clientId = EnvUtil.getEnv("BOT_CLIENT_ID", "");
+            String secret = EnvUtil.getEnv("BOT_CLIENT_SECRET", "");
+            String provider = EnvUtil.getEnv("BOT_PROVIDER", "https://bot.chatopera.com");
+            System.out.println("provider: " + provider + ", clientId: " + clientId);
             this.cb = new Chatbot(clientId, secret, provider);
         } catch (ChatbotException e) {
             e.printStackTrace();
@@ -78,6 +84,41 @@ public class ChatbotTest extends TestCase {
     public void testConversation() throws ChatbotException {
         JSONObject resp = this.cb.conversation("sdktest", "你好");
         System.out.println("[testConversation] resp " + resp.toString());
+    }
+
+    /**
+     * 测试语音识别
+     *
+     * @throws ChatbotException
+     */
+    public void testAsrRecognize() throws ChatbotException {
+        JSONObject payload = new JSONObject();
+
+        String filepath = "src/test/resources/fixtures/001.wav";
+
+        File wavfile = new File(filepath);
+        payload.put("filepath", wavfile.getAbsolutePath());
+
+        JSONObject resp = this.cb.command("POST", "/asr/recognize", payload).toJSON();
+        System.out.println("[testAsrRecognize] resp " + resp.toString());
+    }
+
+    /**
+     * 识别base64语音数据
+     * @throws ChatbotException
+     */
+    public void testAsrRecognizeBase64() throws ChatbotException, IOException {
+        JSONObject payload = new JSONObject();
+
+        String filepath = "src/test/resources/fixtures/001.wav";
+        byte[] fileContent = FileUtils.readFileToByteArray(new File(filepath));
+        String encodedString = Base64.getEncoder().encodeToString(fileContent);
+
+        payload.put("type", "base64");
+        payload.put("data", "data:audio/wav;base64," + encodedString);
+
+        JSONObject resp = this.cb.command("POST", "/asr/recognize", payload).toJSON();
+        System.out.println("[testAsrRecognize] resp " + resp.toString());
     }
 
     public void testFaq() throws ChatbotException {

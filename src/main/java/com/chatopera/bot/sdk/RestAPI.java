@@ -15,12 +15,7 @@
  */
 package com.chatopera.bot.sdk;
 
-import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.JsonNode;
-import com.mashape.unirest.http.Unirest;
-import com.mashape.unirest.http.exceptions.UnirestException;
-import com.mashape.unirest.request.GetRequest;
-import com.mashape.unirest.request.HttpRequestWithBody;
+import kong.unirest.*;
 import org.json.JSONObject;
 
 import java.util.HashMap;
@@ -46,8 +41,8 @@ public class RestAPI {
             headers.put("Content-Type", "application/json");
 
 
-        if (!headers.containsKey("accept"))
-            headers.put("accept", "application/json");
+        if ((!headers.containsKey("accept")) && (!headers.containsKey("Accept")))
+            headers.put("Accept", "application/json");
     }
 
 
@@ -68,11 +63,11 @@ public class RestAPI {
         HttpResponse<JsonNode> resp = request
                 .headers(headers)
                 .queryString(query)
-                .body(body)
+                .body(body.toString())
                 .asJson();
 
-        JSONObject obj = resp.getBody().getObject();
-        return obj;
+        kong.unirest.json.JSONObject obj = resp.getBody().getObject();
+        return new JSONObject(obj.toString());
     }
 
     public static JSONObject post(final String url, final JSONObject body) throws UnirestException {
@@ -96,8 +91,8 @@ public class RestAPI {
                 .queryString(query)
                 .asJson();
         // parse response
-        JSONObject obj = resp.getBody().getObject();
-        return obj;
+        kong.unirest.json.JSONObject obj = resp.getBody().getObject();
+        return new JSONObject(obj.toString());
     }
 
     public static JSONObject get(final String url) throws UnirestException {
@@ -110,12 +105,12 @@ public class RestAPI {
 
     public static JSONObject delete(final String url, HashMap<String, String> headers) throws UnirestException {
         x(headers);
-        return Unirest.delete(url).headers(headers).asJson().getBody().getObject();
+        return new JSONObject(Unirest.delete(url).headers(headers).asJson().getBody().getObject().toString());
     }
 
     public static JSONObject put(final String url, HashMap<String, Object> body, HashMap<String, String> headers) throws UnirestException {
         x(headers);
-        return Unirest.put(url).headers(headers).fields(body).asJson().getBody().getObject();
+        return new JSONObject(Unirest.put(url).headers(headers).fields(body).asJson().getBody().getObject().toString());
     }
 
     /**
@@ -135,11 +130,13 @@ public class RestAPI {
         HttpResponse<JsonNode> resp = request
                 .headers(headers)
                 .queryString(query)
-                .body(body)
+                .body(body.toString())
                 .asJson();
 
-        JSONObject obj = resp.getBody().getObject();
-        return obj;
+        kong.unirest.json.JSONObject obj = resp.getBody().getObject();
+        return new JSONObject(obj.toString());
     }
+
+
 
 }

@@ -1,8 +1,8 @@
-package com.chatopera.bot.sdk;
+package com.chatopera.bot.utils;
 
 import org.apache.commons.lang3.StringUtils;
 
-public class Utils {
+public class EnvUtil {
 
     public static <T> T getEnv(final String variable, final T defaultVal) {
         String val = System.getenv(variable);

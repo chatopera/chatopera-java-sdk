@@ -16,16 +16,20 @@
 package com.chatopera.bot.sdk;
 
 import com.chatopera.bot.exception.ChatbotException;
+import com.chatopera.bot.utils.FileUtil;
+import kong.unirest.Unirest;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Chatopera聊天机器人
@@ -127,13 +131,12 @@ public class Chatbot {
      * @throws Exception
      */
     private HashMap<String, String> auth(final String method, final String path) throws Exception {
+        HashMap<String, String> x = new HashMap<>();
         if (this.credentials != null) {
-            HashMap<String, String> x = new HashMap<>();
             String token = this.credentials.generate(method, path);
             x.put("Authorization", token);
-            return x;
         }
-        return null;
+        return x;
     }
 
     /**
@@ -179,7 +182,16 @@ public class Chatbot {
                     result = RestAPI.get(url.toString(), null, auth(method, fullPath.toString()));
                     break;
                 case "POST":
-                    result = RestAPI.post(url.toString(), payload, null, auth(method, fullPath.toString()));
+                    if (StringUtils.startsWith(path, "/asr/recognize")) {
+                        Optional<JSONObject> resultOpt = postAsrRecognize(url.toString(), payload, null, auth(method, fullPath.toString()));
+                        if (resultOpt.isPresent()) {
+                            result = resultOpt.get();
+                        } else {
+                            throw new ChatbotException("Empty response from ASR Api.");
+                        }
+                    } else {
+                        result = RestAPI.post(url.toString(), payload, null, auth(method, fullPath.toString()));
+                    }
                     break;
                 case "DELETE":
                     result = RestAPI.delete(url.toString(), auth(method, fullPath.toString()));
@@ -225,6 +237,39 @@ public class Chatbot {
             resp.setTotal(result.getInt("total_page"));
 
         return resp;
+    }
+
+    /**
+     * 语音识别 API
+     *
+     * @param url
+     * @param payload
+     * @param query
+     * @param headers
+     * @return
+     */
+    private Optional<JSONObject> postAsrRecognize(final String url, final JSONObject payload, final String query, final HashMap<String, String> headers) throws ChatbotException {
+        if (payload.has("filepath") && FileUtil.exists(payload.getString("filepath"))) {
+            kong.unirest.json.JSONObject obj = Unirest.post(url)
+                    .header("Authorization", headers.containsKey("Authorization") ? headers.get("Authorization") : "")
+                    .field("file", new File(payload.getString("filepath"))).asJson().getBody().getObject();
+
+            return Optional.of(new JSONObject(obj.toString()));
+        } else if (payload.has("type") && StringUtils.equalsIgnoreCase(payload.getString("type"), "base64")) {
+            if (payload.has("data")) {
+                String data = payload.getString("data");
+                if (StringUtils.isNotBlank(data)) {
+                    // 使用 base64 格式请求
+                    return Optional.of(RestAPI.post(url, payload, null, headers));
+                } else {
+                    throw new ChatbotException("Empty data for ASR Api, base64 data is required for base64 type request.");
+                }
+            } else {
+                throw new ChatbotException("`data` is required for base64 type request body.");
+            }
+        } else {
+            throw new ChatbotException("Invalid body for ASR Api, filepath or `type=base64, data=xxx` are required.");
+        }
     }
 
     /**
