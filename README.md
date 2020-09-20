@@ -20,7 +20,7 @@ Chatopera 机器人平台， Java 开发工具包
 
 [示例程序](https://github.com/chatopera/chatopera-sample-java)
 
-[接口文档](https://chatopera.github.io/chatopera-sample-java/)
+[接口文档](https://docs.chatopera.com/products/chatbot-platform/integration.html)
 
 # 贡献
 
