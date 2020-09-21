@@ -98,6 +98,8 @@ public class ChatbotTest extends TestCase {
 
         File wavfile = new File(filepath);
         payload.put("filepath", wavfile.getAbsolutePath());
+        payload.put("nbest", 3);
+        payload.put("pos", false);
 
         JSONObject resp = this.cb.command("POST", "/asr/recognize", payload).toJSON();
         System.out.println("[testAsrRecognize] resp " + resp.toString());
@@ -116,6 +118,8 @@ public class ChatbotTest extends TestCase {
 
         payload.put("type", "base64");
         payload.put("data", "data:audio/wav;base64," + encodedString);
+        payload.put("nbest", 3);
+        payload.put("pos", false);
 
         JSONObject resp = this.cb.command("POST", "/asr/recognize", payload).toJSON();
         System.out.println("[testAsrRecognize] resp " + resp.toString());

@@ -43,6 +43,8 @@ public class Chatbot {
     private String clientId;
     private String clientSecret;
     private Credentials credentials;
+    private final static int ASR_DEFAULT_NBEST = 5;
+    private final static boolean ASR_DEFAULT_POS = false;
 
     // 不支持定义空实例
     private Chatbot() {
@@ -252,7 +254,10 @@ public class Chatbot {
         if (payload.has("filepath") && FileUtil.exists(payload.getString("filepath"))) {
             kong.unirest.json.JSONObject obj = Unirest.post(url)
                     .header("Authorization", headers.containsKey("Authorization") ? headers.get("Authorization") : "")
-                    .field("file", new File(payload.getString("filepath"))).asJson().getBody().getObject();
+                    .field("file", new File(payload.getString("filepath")))
+                    .field("nbest", Integer.toString((payload.has("nbest") ? payload.getInt("nbest") : ASR_DEFAULT_NBEST)))
+                    .field("pos", Boolean.toString(payload.has("pos") ? payload.getBoolean("pos") : ASR_DEFAULT_POS))
+                    .asJson().getBody().getObject();
 
             return Optional.of(new JSONObject(obj.toString()));
         } else if (payload.has("type") && StringUtils.equalsIgnoreCase(payload.getString("type"), "base64")) {
@@ -260,6 +265,12 @@ public class Chatbot {
                 String data = payload.getString("data");
                 if (StringUtils.isNotBlank(data)) {
                     // 使用 base64 格式请求
+                    if (!payload.has("nbest"))
+                        payload.put("nbest", ASR_DEFAULT_NBEST);
+
+                    if (!payload.has("pos"))
+                        payload.put("pos", ASR_DEFAULT_POS);
+
                     return Optional.of(RestAPI.post(url, payload, null, headers));
                 } else {
                     throw new ChatbotException("Empty data for ASR Api, base64 data is required for base64 type request.");
