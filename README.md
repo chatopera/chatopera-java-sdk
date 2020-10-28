@@ -26,7 +26,8 @@ Chatopera 机器人平台， Java 开发工具包
 
 ```
 mvn install
-mvn idea:idea # do your magic
+mvn idea:idea       # do your magic
+./scripts/docs.sh   # generate JavaDocs and Site
 ```
 
 # 联系我们
