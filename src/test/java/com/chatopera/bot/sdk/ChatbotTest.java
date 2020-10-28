@@ -243,24 +243,6 @@ public class ChatbotTest extends TestCase {
         System.out.print("[testIntent] intent  " + resp.toString());
     }
 
-    /**
-     * 测试技能：心理问答 API 查询接口
-     * ./admin/test.sh ChatbotTest#testPsychSearch
-     */
-    public void testPsychSearch() throws ChatbotException {
-        JSONObject resp = this.cb.psychSearch("确定自己是否有抑郁倾向，想要知道自己当下该怎么办", 0.2);
-        System.out.print("[testPsychSearch] psychSearch  " + resp.toString());
-    }
-
-    /**
-     * 测试技能：心理问答 API 聊天接口
-     * ./admin/test.sh ChatbotTest#testPsychChat
-     */
-    public void testPsychChat() throws ChatbotException {
-        JSONObject resp = this.cb.psychChat("sdk", "appid001", "u001", "确定自己是否有抑郁倾向，想要知道自己当下该怎么办");
-        System.out.print("[testPsychChat] psychChat  " + resp.toString());
-    }
-
     /***
      * 聊天机器人用户管理
      ***/
