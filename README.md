@@ -9,7 +9,7 @@ Chatopera 机器人平台， Java 开发工具包
 
 <p align="center">
   <b>登录Chatopera云服务</b><br>
-  <a href="http://bot.chatopera.com/" target="_blank">
+  <a href="http://bot.cskefu.com/" target="_blank">
       <img src="https://user-images.githubusercontent.com/3538629/48039685-e35fcc00-e1b0-11e8-81a9-f26d744fcd1d.png" width="800">
   </a>
 </p>
@@ -20,7 +20,7 @@ Chatopera 机器人平台， Java 开发工具包
 
 [示例程序](https://github.com/chatopera/chatopera-sample-java)
 
-[接口文档](https://docs.chatopera.com/products/chatbot-platform/integration.html)
+[接口文档](https://docs.cskefu.com/products/chatbot-platform/integration.html)
 
 # 贡献
 
@@ -38,19 +38,19 @@ mvn idea:idea       # do your magic
 
 ## 商业合作
 
-<a href="mailto:info@chatopera.com?subject=Chatopera%20Java%20SDK">
-info@chatopera.com
+<a href="mailto:info@cskefu.com?subject=Chatopera%20Java%20SDK">
+info@cskefu.com
 </a>
 
 ## 开源许可协议
 
-Copyright (2018-2020) [北京华夏春松科技有限公司](https://www.chatopera.com/)
+Copyright (2018-2020) [北京华夏春松科技有限公司](https://www.cskefu.com/)
 
 [Apache License Version 2.0](./LICENSE)
 
-Copyright 2018-2020, [北京华夏春松科技有限公司](https://www.chatopera.com/). All rights reserved. This software and related documentation are provided under a license agreement containing restrictions on use and disclosure and are protected by intellectual property laws. Except as expressly permitted in your license agreement or allowed by law, you may not use, copy, reproduce, translate, broadcast, modify, license, transmit, distribute, exhibit, perform, publish, or display any part, in any form, or by any means. Reverse engineering, disassembly, or decompilation of this software, unless required by law for interoperability, is prohibited.
+Copyright 2018-2020, [北京华夏春松科技有限公司](https://www.cskefu.com/). All rights reserved. This software and related documentation are provided under a license agreement containing restrictions on use and disclosure and are protected by intellectual property laws. Except as expressly permitted in your license agreement or allowed by law, you may not use, copy, reproduce, translate, broadcast, modify, license, transmit, distribute, exhibit, perform, publish, or display any part, in any form, or by any means. Reverse engineering, disassembly, or decompilation of this software, unless required by law for interoperability, is prohibited.
 
 [![chatoper banner][co-banner-image]][co-url]
 
 [co-banner-image]: https://user-images.githubusercontent.com/3538629/42383104-da925942-8168-11e8-8195-868d5fcec170.png
-[co-url]: https://www.chatopera.com
+[co-url]: https://www.cskefu.com
