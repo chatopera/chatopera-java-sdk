@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2020 Chatopera Inc, <https://www.cskefu.com>
+ * Copyright (C) 2018-2020 Chatopera Inc, <https://www.chatopera.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,7 +52,7 @@ public class Chatbot {
 
 
     /**
-     * 创建聊天机器人实例，登录 https://bot.cskefu.com 获得 clientId 和 clientSecret
+     * 创建聊天机器人实例，登录 https://bot.chatopera.com 获得 clientId 和 clientSecret
      *
      * @param clientId
      * @param clientSecret
@@ -77,7 +77,7 @@ public class Chatbot {
     }
 
     /**
-     * 创建聊天机器人实例，登录 https://bot.cskefu.com 获得 clientId 和 clientSecret
+     * 创建聊天机器人实例，登录 https://bot.chatopera.com 获得 clientId 和 clientSecret
      *
      * @param clientId
      * @param clientSecret

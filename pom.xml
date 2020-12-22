@@ -6,11 +6,11 @@
 
     <groupId>com.chatopera.bot</groupId>
     <artifactId>sdk</artifactId>
-    <version>3.3.1</version>
+    <version>3.3.2</version>
 
     <name>sdk</name>
     <description>Java SDK for Chatopera Bot Service.</description>
-    <url>https://www.cskefu.com</url>
+    <url>https://www.chatopera.com</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -94,18 +94,18 @@
     <distributionManagement>
         <snapshotRepository>
             <id>chatopera-snapshots</id>
-            <url>https://nexus.cskefu.com/repository/maven-snapshots/</url>
+            <url>https://nexus.chatopera.com/repository/maven-snapshots/</url>
         </snapshotRepository>
         <repository>
             <id>chatopera-releases</id>
-            <url>https://nexus.cskefu.com/repository/maven-releases/</url>
+            <url>https://nexus.chatopera.com/repository/maven-releases/</url>
         </repository>
     </distributionManagement>
     <repositories>
         <repository>
             <id>chatopera</id>
             <name>Chatopera Inc.</name>
-            <url>https://nexus.cskefu.com/repository/maven-public</url>
+            <url>https://nexus.chatopera.com/repository/maven-public</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
@@ -118,10 +118,10 @@
         <developer>
             <id>hain</id>
             <name>Hai Liang Wang</name>
-            <email>hain@cskefu.com</email>
+            <email>hain@chatopera.com</email>
             <url>https://github.com/Samurais</url>
             <organization>Chatopera Inc.</organization>
-            <organizationUrl>http://www.cskefu.com</organizationUrl>
+            <organizationUrl>http://www.chatopera.com</organizationUrl>
             <roles>
                 <role>architect</role>
                 <role>developer</role>
@@ -133,7 +133,7 @@
             <name>Xiang Yu</name>
             <url>https://github.com/mukaiu</url>
             <organization>Chatopera Inc.</organization>
-            <organizationUrl>http://www.cskefu.com</organizationUrl>
+            <organizationUrl>http://www.chatopera.com</organizationUrl>
             <roles>
                 <role>architect</role>
                 <role>developer</role>
