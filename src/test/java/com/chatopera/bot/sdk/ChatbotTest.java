@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Chatopera Inc, <https://www.chatopera.com>
+ * Copyright (C) 2018-2021 Chatopera Inc, <https://www.chatopera.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -107,6 +107,7 @@ public class ChatbotTest extends TestCase {
 
     /**
      * 识别base64语音数据
+     *
      * @throws ChatbotException
      */
     public void testAsrRecognizeBase64() throws ChatbotException, IOException {
@@ -288,5 +289,18 @@ public class ChatbotTest extends TestCase {
 //        }
 //    }
 //
+
+    // Destroy Chatbot, delete all resources
+    // BE CAUTION ABOUT THIS API!!!
+    public void testDeleteChatbot() {
+        try {
+            // {"rc": 0, "msg":"done."} first run
+            // {"rc":3,"error":"chatbot is deleted"} following run
+            Response resp = this.cb.command("DELETE", "/");
+            System.out.println("[testDeleteChatbot] done. " + resp.toJSON().toString());
+        } catch (ChatbotException e) {
+            e.printStackTrace();
+        }
+    }
 
 }
