@@ -160,7 +160,7 @@ public class Chatbot {
         // 自动添加 sdklang 参数
         if (StringUtils.isNotBlank(path)) {
             String[] pairs = path.split("&");
-            if (pairs.length > 1 && path.contains("?")) {
+            if (pairs.length > 1 || path.contains("?")) {
                 path += "&sdklang=java";
             } else {
                 path += "?sdklang=java";
@@ -205,6 +205,7 @@ public class Chatbot {
                     throw new ChatbotException("Invalid requested method, only GET, POST, DELETE, PUT are supported.");
             }
         } catch (Exception e) {
+            e.printStackTrace();
             throw new ChatbotException(e.toString());
         }
 

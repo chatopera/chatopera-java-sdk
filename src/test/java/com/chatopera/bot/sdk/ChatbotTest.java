@@ -21,6 +21,7 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import org.apache.commons.io.FileUtils;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -167,6 +168,12 @@ public class ChatbotTest extends TestCase {
         System.out.print("[testFaq] testFaqdelete " + resp.toString());
     }
 
+    public void testFaqInquiryrank() throws ChatbotException {
+        Response result2 = this.cb.command("GET", "/faq/database/inquiryrank?topN=2");
+//        Response result2 = this.cb.command("GET", "/faq/database/inquiryrank");
+        System.out.println("【SDK】打印返回结果");
+        System.out.println(((JSONArray) result2.getData()).toString());
+    }
 
     /***
      * 知识库扩展问管理
@@ -243,6 +250,22 @@ public class ChatbotTest extends TestCase {
         JSONObject resp = this.cb.intent("D801D03243A65EA7A37736399078A209", "uid007", "我想查看现有车型");
         System.out.print("[testIntent] intent  " + resp.toString());
     }
+
+    /**
+     * 机器人检索
+     */
+    public void testQueryFaq() throws ChatbotException {
+        JSONObject body = new JSONObject();
+        body.put("fromUserId", "zhangsan");
+        body.put("query", "开源许可协议");
+        body.put("faqBestReplyThreshold", 0.7);
+        body.put("faqSuggReplyThreshold", 0.1);
+
+        Response result2 = this.cb.command("POST", "/faq/query", body);
+        System.out.println("【SDK】打印返回结果");
+        System.out.println(((JSONArray) result2.getData()).toString());
+    }
+
 
     /***
      * 聊天机器人用户管理

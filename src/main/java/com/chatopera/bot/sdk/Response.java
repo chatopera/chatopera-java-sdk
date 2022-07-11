@@ -31,6 +31,10 @@ public class Response {
     private int current_page = -1;      // 分页，当前页码，（分页从1开始）
     private int total_page = -1;        // 分页，所有页数
 
+    public final static String DATA_JSON_ARRAY = "JSONArray";
+    public final static String DATA_JSON_OBJECT = "JSONObject";
+    public final static String DATA_NULL = "null";
+
     public int getRc() {
         return rc;
     }
@@ -61,12 +65,28 @@ public class Response {
      * @return
      */
     public Object getData() {
-        if (dataObj != null) {
-            return dataObj;
-        } else if (dataArray != null) {
+        String dataType = getDataType();
+        if (StringUtils.equals(dataType, DATA_JSON_ARRAY)) {
             return dataArray;
+        } else if (StringUtils.equals(dataType, DATA_JSON_OBJECT)) {
+            return dataObj;
         } else {
             return null;
+        }
+    }
+
+    /**
+     * 返回 Data 的对象类型
+     *
+     * @return
+     */
+    public String getDataType() {
+        if (dataArray != null) {
+            return DATA_JSON_ARRAY;
+        } else if (dataObj != null) {
+            return DATA_JSON_OBJECT;
+        } else {
+            return DATA_NULL;
         }
     }
 

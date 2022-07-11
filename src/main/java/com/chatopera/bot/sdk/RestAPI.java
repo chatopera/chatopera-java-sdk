@@ -63,11 +63,16 @@ public class RestAPI {
         HttpResponse<JsonNode> resp = request
                 .headers(headers)
                 .queryString(query)
-                .body(body.toString())
+                .body(body == null ? "{}" : body.toString())
                 .asJson();
 
-        kong.unirest.json.JSONObject obj = resp.getBody().getObject();
-        return new JSONObject(obj.toString());
+        kong.unirest.json.JSONObject obj;
+        if (resp.getBody() == null) {
+            throw new UnirestException(String.format("Unexpected result with API %s %s, statusText %s", "POST", url, resp.getStatusText()));
+        } else {
+            obj = resp.getBody().getObject();
+            return new JSONObject(obj.toString());
+        }
     }
 
     public static JSONObject post(final String url, final JSONObject body) throws UnirestException {
@@ -91,8 +96,14 @@ public class RestAPI {
                 .queryString(query)
                 .asJson();
         // parse response
-        kong.unirest.json.JSONObject obj = resp.getBody().getObject();
-        return new JSONObject(obj.toString());
+        kong.unirest.json.JSONObject obj;
+        if (resp.getBody() == null) {
+            throw new UnirestException(String.format("Unexpected result with API %s %s, statusText %s", "GET", url, resp.getStatusText()));
+        } else {
+            obj = resp.getBody().getObject();
+            return new JSONObject(obj.toString());
+        }
+
     }
 
     public static JSONObject get(final String url) throws UnirestException {
@@ -133,10 +144,12 @@ public class RestAPI {
                 .body(body.toString())
                 .asJson();
 
-        kong.unirest.json.JSONObject obj = resp.getBody().getObject();
-        return new JSONObject(obj.toString());
+        kong.unirest.json.JSONObject obj;
+        if (resp.getBody() == null) {
+            throw new UnirestException(String.format("Unexpected result with API %s %s, statusText %s", "PUT", url, resp.getStatusText()));
+        } else {
+            obj = resp.getBody().getObject();
+            return new JSONObject(obj.toString());
+        }
     }
-
-
-
 }
