@@ -1,6 +1,7 @@
 package com.chatopera.bot.sdk;
 
 import com.chatopera.bot.exception.ChatbotException;
+import com.chatopera.bot.exception.ResourceNotExistException;
 import com.chatopera.bot.utils.EnvUtil;
 import com.chatopera.bot.utils.Logger;
 import junit.framework.TestCase;
@@ -31,7 +32,6 @@ public class DictsMgrTest extends TestCase {
                 botClientSecret,
                 "https://bot.chatopera.com");
     }
-
 
     /**
      * 获取自定义词典列表
@@ -65,4 +65,24 @@ public class DictsMgrTest extends TestCase {
         // done: true, 删除成功；false，删除失败
         assertTrue(done);
     }
+
+    public void testGetCustomDict() throws ChatbotException, ResourceNotExistException {
+        String dictname = "fruit";
+        JSONObject dict = this.dictsMgr.getCustomDict(dictname);
+        assertEquals(dict.getString("name"), dictname);
+        Logger.trace("Dict info" + dict.toString());
+        // dict: name 词典标识，createdate 创建时间，type 类型，updatedate 最后更新时间
+
+        dictname = "fruit2";
+        boolean catched = false;
+        try{
+            JSONObject dict2 = this.dictsMgr.getCustomDict(dictname);
+        } catch (ResourceNotExistException e){
+            Logger.trace("Dict not exist");
+            catched = true;
+        }
+
+        assertTrue(catched);
+    }
+
 }
