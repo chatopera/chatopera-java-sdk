@@ -27,6 +27,8 @@ public class Response {
     private String error;          // 返回值 错误
     private JSONObject dataObj;
     private JSONArray dataArray;
+    private JSONObject status;
+
     private int total = -1;             // 分页，所有数据记录条数
     private int current_page = -1;      // 分页，当前页码，（分页从1开始）
     private int total_page = -1;        // 分页，所有页数
@@ -159,6 +161,14 @@ public class Response {
         this.total_page = total_page;
     }
 
+    public JSONObject getStatus() {
+        return status;
+    }
+
+    public void setStatus(JSONObject status) {
+        this.status = status;
+    }
+
     /**
      * response数据转为JSONObject
      *
@@ -188,6 +198,10 @@ public class Response {
 
         if (total_page >= 0) {
             obj.put("total_page", total_page);
+        }
+
+        if (status != null) {
+            obj.put("status", getStatus());
         }
 
         return obj;

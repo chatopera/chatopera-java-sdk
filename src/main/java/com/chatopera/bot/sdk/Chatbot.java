@@ -234,10 +234,12 @@ public class Chatbot {
             resp.setTotal(result.getInt("total"));
 
         if (result.has("current_page"))
-            resp.setTotal(result.getInt("current_page"));
+            resp.setCurrent_page(result.getInt("current_page"));
 
         if (result.has("total_page"))
-            resp.setTotal(result.getInt("total_page"));
+            resp.setTotal_page(result.getInt("total_page"));
+
+        resp.setStatus(result.optJSONObject("status", new JSONObject()));
 
         return resp;
     }

@@ -24,8 +24,15 @@ Chatopera 机器人平台， Java 开发工具包。
 
 ```
 mvn install
+
+## Generate InteliJ IDEA Project
 mvn idea:idea       # do your magic
-./scripts/docs.sh   # generate JavaDocs and Site
+
+## Logging, set CHATOPERA_SDK_LOG_TRACE as ENV
+CHATOPERA_SDK_LOG_TRACE=on
+
+## Generate JavaDocs and Site
+./scripts/docs.sh
 ```
 
 # 联系我们

@@ -17,3 +17,6 @@ sftp-config.json
 ~$*.doc*
 target/
 .env
+src/test/resources/test.properties
+.*~
+*~
