@@ -33,6 +33,9 @@ CHATOPERA_SDK_LOG_TRACE=on
 
 ## Generate JavaDocs and Site
 ./scripts/docs.sh
+
+## CLI assets
+cd assets # Read assets/README.md to get usage.
 ```
 
 # 联系我们

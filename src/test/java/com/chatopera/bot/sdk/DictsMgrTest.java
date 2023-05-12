@@ -58,4 +58,11 @@ public class DictsMgrTest extends TestCase {
         }
     }
 
+    public void testDeleteCustomDict() throws ChatbotException {
+        // 词典标识名
+        String dictname = "fruit";
+        boolean done = this.dictsMgr.deleteCustomDict(dictname);
+        // done: true, 删除成功；false，删除失败
+        assertTrue(done);
+    }
 }

@@ -61,4 +61,21 @@ public class DictsMgr {
     }
 
 
+    /**
+     * Remove custom dict by name
+     * @param dictname 词典标识名
+     * @return true, 删除成功；false，删除失败
+     * @throws ChatbotException
+     */
+    public boolean deleteCustomDict(final String dictname) throws ChatbotException {
+
+        Response resp = this.chatbot.command("DELETE", String.format("/clause/customdicts/%s", dictname));
+
+        if (resp.getRc() != 0) {
+            System.out.println(String.format("[deleteCustomDict] Invalid response data[%s], dictname %s", StringUtils.isNotBlank(resp.getError()) ? resp.getError() : "", dictname));
+            return false;
+        }
+
+        return true;
+    }
 }
