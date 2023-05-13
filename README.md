@@ -14,6 +14,8 @@ Chatopera 机器人平台， Java 开发工具包。
 
 # [chatopera-java-sdk](https://github.com/chatopera/chatopera-java-sdk)
 
+chatopera/chatopera-java-sdk: [GitHub](https://github.com/chatopera/chatopera-java-sdk) | [Gitee](https://gitee.com/chatopera/chatopera-java-sdk)
+
 [使用说明](https://github.com/chatopera/chatopera-sample-java/wiki)
 
 [示例程序](https://github.com/chatopera/chatopera-sample-java)
