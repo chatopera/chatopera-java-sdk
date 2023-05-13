@@ -15,6 +15,7 @@
  */
 package com.chatopera.bot.sdk;
 
+import com.chatopera.bot.basics.Response;
 import com.chatopera.bot.exception.ChatbotException;
 import com.chatopera.bot.utils.EnvUtil;
 import junit.framework.Test;

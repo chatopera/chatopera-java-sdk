@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.chatopera.bot.sdk;
+package com.chatopera.bot.exception;
 
-/**
- * 常量
- */
-public class Constants {
-    public final static String defaultBaseUrl = "https://bot.chatopera.com";
-    public final static String basePath = "/api/v1/chatbot";
+public class ResourceNotCreatedException extends Exception {
+    public ResourceNotCreatedException(final String msg) {
+        super(msg);
+    }
+    public ResourceNotCreatedException(final String msg, final Throwable cause) {
+        super(msg, cause);
+    }
 }

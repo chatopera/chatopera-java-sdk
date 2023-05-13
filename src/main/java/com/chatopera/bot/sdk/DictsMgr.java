@@ -1,9 +1,11 @@
 package com.chatopera.bot.sdk;
 
+import com.chatopera.bot.basics.Response;
 import com.chatopera.bot.exception.ChatbotException;
+import com.chatopera.bot.exception.ResourceExistedException;
+import com.chatopera.bot.exception.ResourceNotCreatedException;
 import com.chatopera.bot.exception.ResourceNotExistException;
 import org.apache.commons.lang3.StringUtils;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.net.MalformedURLException;
@@ -93,5 +95,30 @@ public class DictsMgr {
         } else {
             throw new ChatbotException(String.format("[getCustomDict] Invalid response data[%s], dictname %s", StringUtils.isNotBlank(resp.getError()) ? resp.getError() : "", dictname));
         }
+    }
+
+    /**
+     * 创建自定义词汇表词典
+     * @param dictname
+     * @return
+     * @throws ChatbotException
+     * @throws ResourceNotCreatedException
+     * @throws ResourceExistedException
+     */
+    public JSONObject createCustomVocabDict(final String dictname) throws ChatbotException, ResourceNotCreatedException, ResourceExistedException {
+        JSONObject payload = new JSONObject();
+        payload.put("name", dictname);
+        payload.put("type", "vocab");
+
+        Response resp = this.chatbot.command("POST", "/clause/customdicts", payload);
+
+        if(resp.getRc() == 2){
+            // Vocab existed
+            throw new ResourceExistedException("Error, dict existed " + dictname);
+        } else if(resp.getRc() != 0){
+            throw new ResourceNotCreatedException("Error, can not create " + dictname + ", " + (StringUtils.isNotBlank(resp.getError()) ? resp.getError() : "Unknown error."));
+        }
+
+        return (JSONObject) resp.getData();
     }
 }

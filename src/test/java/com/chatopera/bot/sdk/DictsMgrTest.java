@@ -1,6 +1,9 @@
 package com.chatopera.bot.sdk;
 
+import com.chatopera.bot.basics.Response;
 import com.chatopera.bot.exception.ChatbotException;
+import com.chatopera.bot.exception.ResourceExistedException;
+import com.chatopera.bot.exception.ResourceNotCreatedException;
 import com.chatopera.bot.exception.ResourceNotExistException;
 import com.chatopera.bot.utils.EnvUtil;
 import com.chatopera.bot.utils.Logger;
@@ -8,11 +11,7 @@ import junit.framework.TestCase;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.util.Properties;
 
 public class DictsMgrTest extends TestCase {
 
@@ -58,6 +57,10 @@ public class DictsMgrTest extends TestCase {
         }
     }
 
+    /**
+     * 删除自定义词典
+     * @throws ChatbotException
+     */
     public void testDeleteCustomDict() throws ChatbotException {
         // 词典标识名
         String dictname = "fruit";
@@ -66,6 +69,11 @@ public class DictsMgrTest extends TestCase {
         assertTrue(done);
     }
 
+    /**
+     * 获得自定义词典基本信息
+     * @throws ChatbotException
+     * @throws ResourceNotExistException
+     */
     public void testGetCustomDict() throws ChatbotException, ResourceNotExistException {
         String dictname = "fruit";
         JSONObject dict = this.dictsMgr.getCustomDict(dictname);
@@ -84,5 +92,18 @@ public class DictsMgrTest extends TestCase {
 
         assertTrue(catched);
     }
+
+    /**
+     * 测试创建自定义词汇表词典
+     */
+    public void testCreateCustomVocabDict() throws ChatbotException, ResourceNotCreatedException, ResourceExistedException {
+        String dictname = "fruit4";
+        JSONObject dict = this.dictsMgr.createCustomVocabDict(dictname);
+        Logger.trace("[testCreateCustomVocabDict] dict " + dict.toString());
+        // sample json {"updatedate":"2023-05-13 11:03:58","vendor":null,"name":"fruit4","description":null,"createdate":"2023-05-13 11:03:58","used":null,"type":"vocab","samples":null}
+        assertEquals(dict.getString("name"), dictname);
+        assertEquals(dict.getString("type"), "vocab");
+    }
+
 
 }

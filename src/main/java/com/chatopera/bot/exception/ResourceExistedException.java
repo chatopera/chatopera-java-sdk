@@ -13,15 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.chatopera.bot.sdk;
+package com.chatopera.bot.exception;
 
-import junit.framework.TestCase;
-import org.apache.commons.lang3.StringUtils;
-
-public class CredentialsTest extends TestCase {
-
-    public void testGenerate() throws Exception {
-        Credentials auth = new Credentials("ClientId", "ClientSecret");
-        assertTrue(StringUtils.isNotBlank(auth.generate("path", "method")));
+public class ResourceExistedException extends Exception {
+    public ResourceExistedException(final String msg) {
+        super(msg);
+    }
+    public ResourceExistedException(final String msg, final Throwable cause) {
+        super(msg, cause);
     }
 }

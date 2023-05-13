@@ -15,7 +15,10 @@
  */
 package com.chatopera.bot.sdk;
 
+import com.chatopera.bot.basics.Constants;
+import com.chatopera.bot.basics.Response;
 import com.chatopera.bot.exception.ChatbotException;
+import com.chatopera.bot.basics.RestAPI;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;

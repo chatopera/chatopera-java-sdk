@@ -13,17 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.chatopera.bot.sdk;
+package com.chatopera.bot.basics;
 
-import com.chatopera.bot.utils.EnvUtil;
-import org.junit.Assert;
-import org.junit.Test;
-
-public class EnvUtilTest {
-
-    @Test
-    public void getEnv() {
-        int val = EnvUtil.getEnv("UTIL_TEST_INT", 1);
-        Assert.assertTrue(val == 1);
-    }
+/**
+ * 常量
+ */
+public class Constants {
+    public final static String defaultBaseUrl = "https://bot.chatopera.com";
+    public final static String basePath = "/api/v1/chatbot";
 }

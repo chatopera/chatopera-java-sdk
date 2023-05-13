@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.chatopera.bot.sdk;
+package com.chatopera.bot.basics;
 
 import com.chatopera.bot.exception.ChatbotException;
 import org.apache.commons.lang3.StringUtils;
