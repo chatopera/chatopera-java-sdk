@@ -1,10 +1,8 @@
 package com.chatopera.bot.sdk;
 
 import com.chatopera.bot.basics.Response;
-import com.chatopera.bot.exception.ChatbotException;
-import com.chatopera.bot.exception.ResourceExistedException;
-import com.chatopera.bot.exception.ResourceNotCreatedException;
-import com.chatopera.bot.exception.ResourceNotExistException;
+import com.chatopera.bot.exception.*;
+import com.chatopera.bot.models.DictWord;
 import com.chatopera.bot.utils.EnvUtil;
 import com.chatopera.bot.utils.Logger;
 import junit.framework.TestCase;
@@ -59,6 +57,7 @@ public class DictsMgrTest extends TestCase {
 
     /**
      * 删除自定义词典
+     *
      * @throws ChatbotException
      */
     public void testDeleteCustomDict() throws ChatbotException {
@@ -71,6 +70,7 @@ public class DictsMgrTest extends TestCase {
 
     /**
      * 获得自定义词典基本信息
+     *
      * @throws ChatbotException
      * @throws ResourceNotExistException
      */
@@ -83,9 +83,9 @@ public class DictsMgrTest extends TestCase {
 
         dictname = "fruit2";
         boolean catched = false;
-        try{
+        try {
             JSONObject dict2 = this.dictsMgr.getCustomDict(dictname);
-        } catch (ResourceNotExistException e){
+        } catch (ResourceNotExistException e) {
             Logger.trace("Dict not exist");
             catched = true;
         }
@@ -97,13 +97,31 @@ public class DictsMgrTest extends TestCase {
      * 测试创建自定义词汇表词典
      */
     public void testCreateCustomVocabDict() throws ChatbotException, ResourceNotCreatedException, ResourceExistedException {
-        String dictname = "fruit4";
-        JSONObject dict = this.dictsMgr.createCustomVocabDict(dictname);
+        String dictname = "fruit";
+        String description = "水果";
+        JSONObject dict = this.dictsMgr.createCustomVocabDict(dictname, description);
         Logger.trace("[testCreateCustomVocabDict] dict " + dict.toString());
         // sample json {"updatedate":"2023-05-13 11:03:58","vendor":null,"name":"fruit4","description":null,"createdate":"2023-05-13 11:03:58","used":null,"type":"vocab","samples":null}
         assertEquals(dict.getString("name"), dictname);
         assertEquals(dict.getString("type"), "vocab");
     }
 
+    /**
+     * 创建或更新自定义词条词典的词条
+     */
+    public void testPutCustomVocabDictWord() throws ResourceInvalidException, ChatbotException {
+        String dictname = "fruit";
+
+        // 词条
+        DictWord dictword = new DictWord();
+        dictword.setWord("马铃薯");
+        // 可以添加多个同义词
+        dictword.addSynonym("土豆");
+        dictword.addSynonym("洋芋");
+        dictword.addSynonym("山药蛋");
+
+        boolean result = this.dictsMgr.putCustomVocabDictWord(dictname, dictword);
+        assertTrue(result);
+    }
 
 }

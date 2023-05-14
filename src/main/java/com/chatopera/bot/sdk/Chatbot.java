@@ -228,8 +228,14 @@ public class Chatbot {
             }
         }
 
-        if (result.has("msg"))
-            resp.setMsg(result.getString("msg"));
+        if (result.has("msg")){
+            if(result.isNull("msg")){
+                resp.setMsg("");
+            } else {
+                resp.setMsg(result.getString("msg"));
+            }
+        }
+
 
         if (result.has("data"))
             resp.setData(result.get("data"));

@@ -5,6 +5,8 @@ import com.chatopera.bot.exception.ChatbotException;
 import com.chatopera.bot.exception.ResourceExistedException;
 import com.chatopera.bot.exception.ResourceNotCreatedException;
 import com.chatopera.bot.exception.ResourceNotExistException;
+import com.chatopera.bot.models.DictWord;
+import com.chatopera.bot.utils.Logger;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 
@@ -70,8 +72,11 @@ public class DictsMgr {
 
         Response resp = this.chatbot.command("DELETE", String.format("/clause/customdicts/%s", dictname));
 
-        if (resp.getRc() != 0) {
-            System.out.println(String.format("[deleteCustomDict] Invalid response data[%s], dictname %s", StringUtils.isNotBlank(resp.getError()) ? resp.getError() : "", dictname));
+        if (resp.getRc() == 11) {
+            // Not exist before remove, claim as true
+            return true;
+        } else if (resp.getRc() != 0) {
+            Logger.warn(String.format("[deleteCustomDict] Invalid response data[%s], dictname %s", StringUtils.isNotBlank(resp.getError()) ? resp.getError() : "", dictname));
             return false;
         }
 
@@ -97,28 +102,88 @@ public class DictsMgr {
         }
     }
 
+
     /**
      * 创建自定义词汇表词典
+     *
+     * @param dictname 词典标识
+     * @return
+     * @throws ResourceExistedException
+     * @throws ResourceNotCreatedException
+     * @throws ChatbotException
+     */
+    public JSONObject createCustomVocabDict(final String dictname) throws ResourceExistedException, ResourceNotCreatedException, ChatbotException {
+        return createCustomVocabDict(dictname, null);
+    }
+
+    /**
+     * 创建自定义词汇表词典
+     *
      * @param dictname
      * @return
      * @throws ChatbotException
      * @throws ResourceNotCreatedException
      * @throws ResourceExistedException
      */
-    public JSONObject createCustomVocabDict(final String dictname) throws ChatbotException, ResourceNotCreatedException, ResourceExistedException {
+    public JSONObject createCustomVocabDict(final String dictname, final String description) throws ChatbotException, ResourceNotCreatedException, ResourceExistedException {
         JSONObject payload = new JSONObject();
         payload.put("name", dictname);
         payload.put("type", "vocab");
 
         Response resp = this.chatbot.command("POST", "/clause/customdicts", payload);
 
-        if(resp.getRc() == 2){
+        if (resp.getRc() == 0 && StringUtils.isNotBlank(description)) {
+            // 更新词典描述
+            JSONObject payload2 = new JSONObject();
+            payload2.put("description", description);
+            Response resp2 = this.chatbot.command("PUT", String.format("/clause/customdicts/%s", dictname), payload2);
+            if (resp2.getRc() == 0) {
+                JSONObject result = (JSONObject) resp2.getData();
+                result.put("description", description);
+                return result;
+            }
+        } else if (resp.getRc() == 2) {
             // Vocab existed
             throw new ResourceExistedException("Error, dict existed " + dictname);
-        } else if(resp.getRc() != 0){
+        } else if (resp.getRc() != 0) {
             throw new ResourceNotCreatedException("Error, can not create " + dictname + ", " + (StringUtils.isNotBlank(resp.getError()) ? resp.getError() : "Unknown error."));
         }
 
         return (JSONObject) resp.getData();
+    }
+
+    /**
+     * 创建或更新自定义词条词典的词条
+     * 如果存在该标准词的词条，将会使用传入的 synonyms 作为近义词进行覆盖
+     * @param dictName
+     * @param dictWord
+     * @return
+     */
+    public boolean putCustomVocabDictWord(final String dictname, final DictWord dictword) throws ChatbotException {
+
+        JSONObject payload = new JSONObject();
+
+        // add customdict
+        JSONObject customdict = new JSONObject();
+        customdict.put("name", dictname);
+        payload.put("customdict", customdict);
+
+        // add dictword
+        JSONObject dictwordJson = new JSONObject();
+        dictwordJson.put("word", dictword.getWord());
+        String synonyms = dictword.stringifySynonyms();
+        if (StringUtils.isNotBlank(synonyms)) {
+            dictwordJson.put("synonyms", synonyms);
+        }
+
+        payload.put("dictword", dictwordJson);
+
+        Response resp = this.chatbot.command("POST", "/clause/dictwords", payload);
+
+        if (resp.getRc() != 0) {
+            Logger.warn("[createCustomVocabDictWord] create dict failed " + (StringUtils.isNotBlank(resp.getError()) ? resp.getError() : ""));
+        }
+
+        return resp.getRc() == 0;
     }
 }

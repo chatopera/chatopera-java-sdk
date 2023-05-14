@@ -20,6 +20,14 @@ public class Logger {
         }
     }
 
+    public static void warn(final String msg) {
+        StringBuffer sb = new StringBuffer();
+        sb.append(dtf.format(LocalDateTime.now()));
+        sb.append(" WARN ");
+        sb.append(msg);
+        System.out.println(sb.toString());
+    }
+
     /**
      * Set log trace on or off
      *
