@@ -15,7 +15,11 @@ public class Logger {
             StringBuffer sb = new StringBuffer();
             sb.append(dtf.format(LocalDateTime.now()));
             sb.append(" ");
-            sb.append(msg);
+            if (msg != null) {
+                sb.append(msg);
+            } else {
+                sb.append("null");
+            }
             System.out.println(sb.toString());
         }
     }
@@ -24,7 +28,11 @@ public class Logger {
         StringBuffer sb = new StringBuffer();
         sb.append(dtf.format(LocalDateTime.now()));
         sb.append(" WARN ");
-        sb.append(msg);
+        if (msg != null) {
+            sb.append(msg);
+        } else {
+            sb.append("null");
+        }
         System.out.println(sb.toString());
     }
 

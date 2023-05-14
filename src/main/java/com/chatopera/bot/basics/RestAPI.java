@@ -103,7 +103,6 @@ public class RestAPI {
             obj = resp.getBody().getObject();
             return new JSONObject(obj.toString());
         }
-
     }
 
     public static JSONObject get(final String url) throws UnirestException {
@@ -117,6 +116,11 @@ public class RestAPI {
     public static JSONObject delete(final String url, HashMap<String, String> headers) throws UnirestException {
         x(headers);
         return new JSONObject(Unirest.delete(url).headers(headers).asJson().getBody().getObject().toString());
+    }
+
+    public static JSONObject delete(final String url, HashMap<String, String> headers, JSONObject body) throws UnirestException {
+        x(headers);
+        return new JSONObject(Unirest.delete(url).headers(headers).body(body.toString()).asJson().getBody().getObject().toString());
     }
 
     public static JSONObject put(final String url, HashMap<String, Object> body, HashMap<String, String> headers) throws UnirestException {

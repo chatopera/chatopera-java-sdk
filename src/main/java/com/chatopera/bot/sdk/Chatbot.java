@@ -200,7 +200,11 @@ public class Chatbot {
                     }
                     break;
                 case "DELETE":
-                    result = RestAPI.delete(url.toString(), auth(method, fullPath.toString()));
+                    if(payload != null){
+                        result = RestAPI.delete(url.toString(), auth(method, fullPath.toString()), payload);
+                    } else {
+                        result = RestAPI.delete(url.toString(), auth(method, fullPath.toString()));
+                    }
                     break;
                 case "PUT":
                     result = RestAPI.put(url.toString(), payload, null, auth(method, fullPath.toString()));

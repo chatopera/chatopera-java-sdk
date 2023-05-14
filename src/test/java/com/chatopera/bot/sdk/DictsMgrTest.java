@@ -31,7 +31,7 @@ public class DictsMgrTest extends TestCase {
     }
 
     /**
-     * 获取自定义词典列表
+     * 自定义词典：获取自定义词典列表
      *
      * @throws ChatbotException
      */
@@ -69,7 +69,7 @@ public class DictsMgrTest extends TestCase {
     }
 
     /**
-     * 获得自定义词典基本信息
+     * 自定义词典：获得自定义词典基本信息
      *
      * @throws ChatbotException
      * @throws ResourceNotExistException
@@ -94,7 +94,7 @@ public class DictsMgrTest extends TestCase {
     }
 
     /**
-     * 测试创建自定义词汇表词典
+     * 自定义词典：测试创建自定义词汇表词典
      */
     public void testCreateCustomVocabDict() throws ChatbotException, ResourceNotCreatedException, ResourceExistedException {
         String dictname = "fruit";
@@ -107,7 +107,7 @@ public class DictsMgrTest extends TestCase {
     }
 
     /**
-     * 创建或更新自定义词条词典的词条
+     * 自定义词典：创建或更新自定义词条词典的词条
      */
     public void testPutCustomVocabDictWord() throws ResourceInvalidException, ChatbotException {
         String dictname = "fruit";
@@ -121,6 +121,34 @@ public class DictsMgrTest extends TestCase {
         dictword.addSynonym("山药蛋");
 
         boolean result = this.dictsMgr.putCustomVocabDictWord(dictname, dictword);
+        assertTrue(result);
+    }
+
+    /**
+     * 自定义词典：获得词典词条详情
+     *
+     * @throws ChatbotException
+     * @throws ResourceNotCreatedException
+     * @throws ResourceExistedException
+     */
+    public void testGetCustomVocabDictWord() throws ChatbotException, ResourceNotCreatedException, ResourceExistedException, ResourceNotExistException, ResourceInvalidException {
+        String dictname = "fruit";
+        String dictword = "马铃薯";
+        DictWord result = this.dictsMgr.getCustomVocabDictWord(dictname, dictword);
+        Logger.trace("[testGetCustomVocabDictWord] dict " + result.toJson().toString());
+        // sample json {"updatedate":"2023-05-13 11:03:58","vendor":null,"name":"fruit4","description":null,"createdate":"2023-05-13 11:03:58","used":null,"type":"vocab","samples":null}
+        assertEquals(result.getWord(), dictword);
+        Logger.trace("Synonyms " + result.stringifySynonyms());
+    }
+
+    /**
+     * 自定义词典：删除自定义词条 通过指定词典和标准词
+     */
+    public void testDeleteCustomVocabDictWord() throws ResourceOperationException, ChatbotException {
+        String dictname = "fruit";
+        String dictword = "马铃薯"; // 标准词
+
+        boolean result = this.dictsMgr.deleteCustomVocabDictWord(dictname, dictword);
         assertTrue(result);
     }
 

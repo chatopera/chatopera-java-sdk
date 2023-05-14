@@ -1,16 +1,15 @@
 package com.chatopera.bot.sdk;
 
 import com.chatopera.bot.basics.Response;
-import com.chatopera.bot.exception.ChatbotException;
-import com.chatopera.bot.exception.ResourceExistedException;
-import com.chatopera.bot.exception.ResourceNotCreatedException;
-import com.chatopera.bot.exception.ResourceNotExistException;
+import com.chatopera.bot.exception.*;
 import com.chatopera.bot.models.DictWord;
 import com.chatopera.bot.utils.Logger;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
+import java.net.URLEncoder;
 
 /**
  * 词典管理
@@ -155,6 +154,7 @@ public class DictsMgr {
     /**
      * 创建或更新自定义词条词典的词条
      * 如果存在该标准词的词条，将会使用传入的 synonyms 作为近义词进行覆盖
+     *
      * @param dictName
      * @param dictWord
      * @return
@@ -181,9 +181,62 @@ public class DictsMgr {
         Response resp = this.chatbot.command("POST", "/clause/dictwords", payload);
 
         if (resp.getRc() != 0) {
-            Logger.warn("[createCustomVocabDictWord] create dict failed " + (StringUtils.isNotBlank(resp.getError()) ? resp.getError() : ""));
+            if (StringUtils.isNotBlank(resp.getError())) {
+                Logger.warn(resp.getError());
+            }
+            Logger.warn("[putCustomVocabDictWord] create dict failed " + (StringUtils.isNotBlank(resp.getError()) ? resp.getError() : ""));
         }
 
         return resp.getRc() == 0;
+    }
+
+    /**
+     * 返回自定义词典词条，指定词典标识和标准词
+     *
+     * @param dictname
+     * @param dictword
+     * @return
+     */
+    public DictWord getCustomVocabDictWord(final String dictname, final String dictword) throws ChatbotException, ResourceNotExistException, ResourceInvalidException {
+        String dictwordEncoded = null;
+        try {
+            dictwordEncoded = URLEncoder.encode(dictword, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            dictwordEncoded = URLEncoder.encode(dictword);
+        }
+        Response resp = this.chatbot.command("GET", String.format("/clause/dictword?dictword=%s&dictname=%s", dictwordEncoded, dictname));
+
+        if (resp.getRc() == 0) {
+            JSONObject data = (JSONObject) resp.getData();
+            DictWord w = new DictWord();
+            w.fromJson(data);
+            return w;
+        } else {
+            throw new ResourceNotExistException("Error " + (StringUtils.isNotBlank(resp.getError()) ? resp.getError() : "RC " + resp.getRc()));
+        }
+    }
+
+
+    /**
+     * 删除自定义词典词条：指定标准词
+     *
+     * @param dictname 词典标识
+     * @param dictword 标准词
+     * @return
+     */
+    public boolean deleteCustomVocabDictWord(final String dictname, final String dictword) throws ChatbotException, ResourceOperationException {
+        JSONObject payload = new JSONObject();
+        payload.put("customdict", dictname);
+        payload.put("dictword", dictword);
+
+        Response resp = this.chatbot.command("DELETE", "/clause/dictwords", payload);
+
+        if (resp.getRc() != 0) {
+            Logger.trace("deleteCustomVocabDictWord -");
+            Logger.trace(resp.getError());
+            throw new ResourceOperationException("Invalid delete operation on Resource dict[" + dictname + "], dictword [" + dictword + "]");
+        }
+
+        return true;
     }
 }
