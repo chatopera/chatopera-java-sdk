@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021 Chatopera Inc, <https://www.chatopera.com>
+ * Copyright (C) 2018-2023 Chatopera Inc, <https://www.chatopera.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package com.chatopera.bot.sdk;
 
-import com.chatopera.bot.basics.Response;
+import com.chatopera.bot.sdk.basics.Response;
 import com.chatopera.bot.exception.ChatbotException;
 import com.chatopera.bot.utils.EnvUtil;
 import junit.framework.Test;

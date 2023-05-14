@@ -15,7 +15,7 @@
  */
 package com.chatopera.bot.basics;
 
-import com.chatopera.bot.basics.Credentials;
+import com.chatopera.bot.sdk.basics.Credentials;
 import junit.framework.TestCase;
 import org.apache.commons.lang3.StringUtils;
 

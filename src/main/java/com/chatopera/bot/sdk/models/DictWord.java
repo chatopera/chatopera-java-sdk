@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.chatopera.bot.models;
+package com.chatopera.bot.sdk.models;
 
 import com.chatopera.bot.exception.ResourceInvalidException;
 import org.apache.commons.lang3.StringUtils;
