@@ -254,4 +254,31 @@ public class DictsMgr {
 
         return true;
     }
+
+    /**
+     * Get Custom Vocab Dictwords by page
+     * 支持分页：page 第几页，从 1 开始；limit 每页数据条数
+     *
+     * @param dictname Custom vocab dict name
+     * @param page     Page
+     * @param limit    Page size, records in page
+     * @return
+     */
+    public Response getCustomVocabDictWords(final String dictname, int page, int limit) throws ChatbotException {
+        if (page <= 0) {
+            page = 1;
+        }
+
+        if (limit <= 0) {
+            limit = 20;
+        }
+
+        Response resp = this.chatbot.command("GET", String.format("/clause/dictwords?customdict=%s&page=%d&limit=%d", dictname, page, limit));
+
+        if (resp == null || resp.getRc() != 0) {
+            throw new ChatbotException(String.format("Invalid response data[%s]", StringUtils.isNotBlank(resp.getError()) ? resp.getError() : ""));
+        }
+
+        return resp;
+    }
 }

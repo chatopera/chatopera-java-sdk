@@ -25,6 +25,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DictsMgrTest extends TestCase {
 
@@ -151,10 +153,52 @@ public class DictsMgrTest extends TestCase {
         String dictword = "马铃薯";
         DictWord result = this.dictsMgr.getCustomVocabDictWord(dictname, dictword);
         Logger.trace("[testGetCustomVocabDictWord] dict " + result.toJson().toString());
-        // sample json {"updatedate":"2023-05-13 11:03:58","vendor":null,"name":"fruit4","description":null,"createdate":"2023-05-13 11:03:58","used":null,"type":"vocab","samples":null}
         assertEquals(result.getWord(), dictword);
         Logger.trace("Synonyms " + result.stringifySynonyms());
+        // Sample output
+        //        2023-05-15 07:04:13 [testGetCustomVocabDictWord] dict {"synonyms":"山药蛋;土豆;洋芋","word":"马铃薯"}
+        //        2023-05-15 07:04:13 Synonyms 山药蛋;土豆;洋芋
     }
+
+
+    /**
+     * 自定义词典：获得词条列表
+     *
+     * @throws ChatbotException
+     * @throws ResourceNotCreatedException
+     * @throws ResourceExistedException
+     * @throws ResourceNotExistException
+     * @throws ResourceInvalidException
+     */
+    public void testGetCustomVocabDictWords() throws ChatbotException, ResourceNotCreatedException, ResourceExistedException, ResourceNotExistException, ResourceInvalidException {
+        String dictname = "fruit";
+        int page = 1;
+        int limit = 10;
+        Response result = this.dictsMgr.getCustomVocabDictWords(dictname, page, limit);
+        Logger.trace(String.format("[testGetCustomVocabDictWords] 该词典词条总数 %d", result.getTotal()));
+        Logger.trace(String.format("[testGetCustomVocabDictWords] 总页数 %d", result.getTotal_page()));
+        Logger.trace(String.format("[testGetCustomVocabDictWords] 当前页 %d", result.getCurrent_page()));
+        Logger.trace(String.format("[testGetCustomVocabDictWords] 当前页数据条数 %d", ((JSONArray) result.getData()).length()));
+
+        // 遍历词条
+        JSONArray data = (JSONArray) result.getData();
+        for (int i = 0; i < data.length(); i++) {
+            DictWord d = new DictWord();
+            d.fromJson(data.getJSONObject(i));
+            Logger.trace(String.format("[testGetCustomVocabDictWords] word %s, syns %s", d.getWord(), d.stringifySynonyms()));
+        }
+        // Sample output
+        //        2023-05-15 07:02:31 [testGetCustomVocabDictWords] 该词典词条总数 5
+        //        2023-05-15 07:02:31 [testGetCustomVocabDictWords] 总页数 1
+        //        2023-05-15 07:02:31 [testGetCustomVocabDictWords] 当前页 1
+        //        2023-05-15 07:02:31 [testGetCustomVocabDictWords] 当前页数据条数 5
+        //        2023-05-15 07:02:31 [testGetCustomVocabDictWords] word 荔枝, syns
+        //        2023-05-15 07:02:31 [testGetCustomVocabDictWords] word 西瓜, syns
+        //        2023-05-15 07:02:31 [testGetCustomVocabDictWords] word 香蕉, syns
+        //        2023-05-15 07:02:31 [testGetCustomVocabDictWords] word 猕猴桃, syns
+        //        2023-05-15 07:02:31 [testGetCustomVocabDictWords] word 马铃薯, syns 山药蛋;土豆;洋芋
+    }
+
 
     /**
      * 自定义词典：删除自定义词条 通过指定词典和标准词

@@ -30,8 +30,10 @@ public class DictWord {
     private String word;
     private HashSet<String> synonyms;
 
-    public DictWord(){
-    };
+    public DictWord() {
+    }
+
+    ;
 
     /**
      * @param word 标准词
@@ -42,7 +44,7 @@ public class DictWord {
     }
 
     /**
-     * @param word 标准词
+     * @param word     标准词
      * @param synonyms 近义词
      * @throws ResourceInvalidException
      */
@@ -52,7 +54,7 @@ public class DictWord {
     }
 
     /**
-     * @param word 标准词
+     * @param word     标准词
      * @param synonyms 近义词
      * @throws ResourceInvalidException
      */
@@ -79,6 +81,10 @@ public class DictWord {
 
     public void setSynonyms(final HashSet<String> synonyms) {
         this.synonyms = new HashSet<>();
+
+        if (synonyms == null) {
+            return;
+        }
 
         for (String s : synonyms) {
             s = StringUtils.trim(s);
@@ -142,17 +148,20 @@ public class DictWord {
                 }
             }
             return synonyms;
+        } else {
+            return null;
         }
 
-        throw new ResourceInvalidException("Invalid format of Synonyms string, e.g. `wordA;wordB`");
+//        throw new ResourceInvalidException("Invalid format of Synonyms string, e.g. `wordA;wordB`");
     }
 
     /**
      * 将近义词转化为字符串
+     *
      * @return
      */
-    public String stringifySynonyms(){
-        if(this.synonyms != null && this.synonyms.size() > 0){
+    public String stringifySynonyms() {
+        if (this.synonyms != null && this.synonyms.size() > 0) {
             return StringUtils.join(this.synonyms, ";");
         }
 
