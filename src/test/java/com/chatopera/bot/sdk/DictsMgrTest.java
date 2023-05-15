@@ -15,8 +15,8 @@
  */
 package com.chatopera.bot.sdk;
 
-import com.chatopera.bot.sdk.basics.Response;
 import com.chatopera.bot.exception.*;
+import com.chatopera.bot.sdk.basics.Response;
 import com.chatopera.bot.sdk.models.DictWord;
 import com.chatopera.bot.utils.EnvUtil;
 import com.chatopera.bot.utils.Logger;
@@ -25,8 +25,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class DictsMgrTest extends TestCase {
 
