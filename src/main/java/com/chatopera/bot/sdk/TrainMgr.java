@@ -67,16 +67,9 @@ public class TrainMgr {
      * @return
      */
     protected boolean trainConversations() throws ChatbotException, ResourceInvalidException {
-        Status currentStatus = getStatus();
-
-        if (currentStatus.getReparse() != 0) {
-            // 多轮对话待同步
-            Response resp = this.chatbot.command("POST", "/conversation/sync/customdicts");
-            return resp.getRc() == 0;
-        } else {
-            // 服务器端机器人多轮对话已经同步最新词典
-            return true;
-        }
+        // 多轮对话待同步
+        Response resp = this.chatbot.command("POST", "/conversation/sync/customdicts");
+        return resp.getRc() == 0;
     }
 
     /**
@@ -87,27 +80,19 @@ public class TrainMgr {
      * @throws ResourceInvalidException
      */
     protected boolean trainIntents() throws ChatbotException, ResourceInvalidException, ResourceOperationException {
-        Status currentStatus = getStatus();
-
-        if (currentStatus.getRetrain() != 0) {
-            // 意图识别模型待训练
-            Response resp = this.chatbot.command("POST", "/clause/devver/train");
-            if (resp.getRc() == 0) {
-                // 提交并开始执行训练
-                return true;
-            } else if (resp.getRc() == 21 || resp.getRc() == 22 || resp.getRc() == 24) {
-                Logger.warn("[trainIntents] 没有意图或意图没有说法，此时不需要训练。");
-                return true;
-            } else if (resp.getRc() == 25) {
-                Logger.warn("[trainIntents] 存在不合法的词典信息，无法开始训练");
-                return false;
-            } else {
-                throw new ResourceOperationException("[trainIntents] Unexpected operation results.");
-            }
-        } else {
-            // 训练任务未开始，因为服务器端意图识别模型已经同步最新的训练数据
-            // 不需要重新训练
+        // 意图识别模型待训练
+        Response resp = this.chatbot.command("POST", "/clause/devver/train");
+        if (resp.getRc() == 0) {
+            // 提交并开始执行训练
             return true;
+        } else if (resp.getRc() == 21 || resp.getRc() == 22 || resp.getRc() == 24) {
+            Logger.warn("[trainIntents] 没有意图或意图没有说法，此时不需要训练。");
+            return true;
+        } else if (resp.getRc() == 25) {
+            Logger.warn("[trainIntents] 存在不合法的词典信息，无法开始训练");
+            return false;
+        } else {
+            throw new ResourceOperationException("[trainIntents] Unexpected operation results.");
         }
     }
 
@@ -118,16 +103,9 @@ public class TrainMgr {
      * @return 训练任务是否启动。
      */
     protected boolean trainFAQs() throws ResourceInvalidException, ChatbotException {
-        Status currentStatus = getStatus();
-
-        if (currentStatus.getReindex() != 0) {
-            // 多轮对话待同步
-            Response resp = this.chatbot.command("POST", "/faq/sync/customdicts");
-            return resp.getRc() == 0;
-        } else {
-            // 服务器端机器人知识库索引已经与最新词典信息一致，不需要重新训练
-            return true;
-        }
+        // FAQs 知识库同步
+        Response resp = this.chatbot.command("POST", "/faq/sync/customdicts");
+        return resp.getRc() == 0;
     }
 
     /**

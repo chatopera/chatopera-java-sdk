@@ -6,7 +6,7 @@
 
     <groupId>com.chatopera.bot</groupId>
     <artifactId>sdk</artifactId>
-    <version>3.5.2</version>
+    <version>3.5.3</version>
 
     <name>sdk</name>
     <description>Java SDK for Chatopera Bot Service. Get Java API Docs at https://chatopera.github.io/chatopera-sample-java/apidocs/</description>

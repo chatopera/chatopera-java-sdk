@@ -48,6 +48,9 @@ public class TrainMgrTest extends TestCase {
 
     public void testGetStatus() throws ResourceInvalidException, ChatbotException {
         Status s = this.trainMgr.getStatus();
+        System.out.println("getReindex " + Integer.toString(s.getReindex()));
+        System.out.println("getReparse " + Integer.toString(s.getReparse()));
+        System.out.println("getRetrain " + Integer.toString(s.getRetrain()));
         Logger.trace(String.format("status %s", s.toString()));
     }
 
