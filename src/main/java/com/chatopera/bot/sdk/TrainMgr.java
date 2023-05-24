@@ -53,7 +53,7 @@ public class TrainMgr {
      */
     public Status getStatus() throws ChatbotException, ResourceInvalidException {
         Response resp = this.chatbot.command("GET", "/clause/devver/build");
-        if (resp.getRc() == 0) {
+        if (resp.getStatus() != null && resp.getStatus().has("retrain")) {
             Status status = new Status(resp.getStatus());
             return status;
         } else {

@@ -200,7 +200,7 @@ public class Chatbot {
                     }
                     break;
                 case "DELETE":
-                    if(payload != null){
+                    if (payload != null) {
                         result = RestAPI.delete(url.toString(), auth(method, fullPath.toString()), payload);
                     } else {
                         result = RestAPI.delete(url.toString(), auth(method, fullPath.toString()));
@@ -232,8 +232,8 @@ public class Chatbot {
             }
         }
 
-        if (result.has("msg")){
-            if(result.isNull("msg")){
+        if (result.has("msg")) {
+            if (result.isNull("msg")) {
                 resp.setMsg("");
             } else {
                 resp.setMsg(result.getString("msg"));
@@ -253,8 +253,11 @@ public class Chatbot {
         if (result.has("total_page"))
             resp.setTotal_page(result.getInt("total_page"));
 
-        resp.setStatus(result.optJSONObject("status", new JSONObject()));
-
+        if (result.has("status")) {
+            resp.setStatus(result.optJSONObject("status", new JSONObject()));
+        } else {
+            resp.setStatus(null);
+        }
         return resp;
     }
 
