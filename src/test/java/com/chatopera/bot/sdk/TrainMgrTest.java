@@ -18,16 +18,17 @@ package com.chatopera.bot.sdk;
 import com.chatopera.bot.exception.ChatbotException;
 import com.chatopera.bot.exception.ResourceInvalidException;
 import com.chatopera.bot.exception.ResourceOperationException;
+import com.chatopera.bot.sdk.models.Status;
 import com.chatopera.bot.utils.EnvUtil;
 import com.chatopera.bot.utils.Logger;
 import junit.framework.TestCase;
+import org.json.JSONObject;
 
 import java.io.IOException;
 
 public class TrainMgrTest extends TestCase {
 
     private TrainMgr trainMgr;
-    private DictsMgr dictsMgr;
     private String botClientId;
     private String botClientSecret;
 
@@ -40,14 +41,16 @@ public class TrainMgrTest extends TestCase {
         botClientId = EnvUtil.getEnv("BOT_CLIENT_ID", "");
         botClientSecret = EnvUtil.getEnv("BOT_CLIENT_SECRET", "");
 
-        this.dictsMgr = new DictsMgr(botClientId,
-                botClientSecret,
-                "https://bot.chatopera.com");
-
         this.trainMgr = new TrainMgr(botClientId,
                 botClientSecret,
                 "https://bot.chatopera.com");
     }
+
+    public void testGetStatus() throws ResourceInvalidException, ChatbotException {
+        Status s = this.trainMgr.getStatus();
+        Logger.trace(String.format("status %s", s.toString()));
+    }
+
 
     /**
      * 测试训练多轮对话

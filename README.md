@@ -1,7 +1,7 @@
 # chatopera-java-sdk
 http://bot.chatopera.com/
 
-为企业交付智能对话机器人 / Deliver Chatbots for Enterprises.
+重新定义聊天机器人 / reInvent Chatbots.
 
 Chatopera 机器人平台， Java 开发工具包。
 
@@ -20,7 +20,7 @@ Repos: [GitHub](https://github.com/chatopera/chatopera-java-sdk) | [Gitee](https
 
 [示例程序](https://github.com/chatopera/chatopera-sample-java)
 
-[接口文档](https://docs.chatopera.com/products/chatbot-platform/integration.html)
+[接口文档](https://docs.chatopera.com/products/chatbot-platform/howto-guides/integration/integration-sdk.html)
 
 # 贡献
 
