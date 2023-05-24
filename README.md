@@ -34,7 +34,7 @@ mvn idea:idea       # do your magic
 CHATOPERA_SDK_LOG_TRACE=on
 
 ## Generate JavaDocs and Site
-./scripts/docs.sh
+./admin/docs.sh
 
 ## CLI assets
 cd assets # Read assets/README.md to get usage.
