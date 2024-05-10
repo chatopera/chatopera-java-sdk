@@ -85,4 +85,97 @@ public class ChatoperaTest extends TestCase {
         System.out.println("[testGetChatbots] " + resp.toJSON().toString());
         assertEquals(0, resp.getRc());
     }
+
+    /**
+     * 通过聊天机器人 ID 获得 Secret 信息
+     *
+     * @throws ChatbotException
+     */
+    public void testGetChatbotSecretById() throws ChatbotException {
+        String chatbotID = "YOUR CLIENT ID";
+        Response resp = this.co.command("GET", "/secret/" + chatbotID);
+        System.out.println("[testGetChatbotSecretById] " + resp.toJSON().toString());
+//        {
+//  "rc": 0,
+//  "data": {
+//    "createdAt": "Fri May 10 2024 17:11:52 GMT+0800 (China Standard Time)",
+//    "isDeleted": false,
+//    "name": "testdel3",
+//    "logo": "",
+//    "secret": "2ba7f080adbb80f67ec5dc9d3c731b7d",
+//    "descriptions": ""
+//  }
+//}
+//
+        assertEquals(0, resp.getRc());
+    }
+
+
+    /**
+     * 获得聊天机器人详情
+     *
+     * @throws ChatbotException
+     */
+    public void testGetChatbotDetails() throws ChatbotException {
+        String chatbotID = "YOUR CLIENT ID";
+        Response resp = this.co.command("GET", "/chatbot/" + chatbotID);
+        System.out.println("[testGetChatbotDetails] " + resp.toJSON().toString());
+        assertEquals(0, resp.getRc());
+        //{
+        //  "rc": 0,
+        //  "data": {
+        //    "faqSuggReplyThreshold": 0.5,
+        //    "description": "",
+        //    "conversationTimeout": 1800,
+        //    "gambitIntentQuestionMaxAttempts": 2,
+        //    "name": "春松客服演示机器人",
+        //    "gambitLikeThreshold": 0.8,
+        //    "faqBestReplyThreshold": 0.8,
+        //    "welcome": "你好！我是春松客服演示机器人客服。",
+        //    "fallback": "我不明白您的意思。发送【转人工】，进入人工客服。",
+        //    "trans_zhCN_ZhTw2ZhCn": false,
+        //    "primaryLanguage": "zh_CN",
+        //    "historyCheckpoints": 100,
+        //    "llmBaiduErnieBot": false,
+        //    "status": {
+        //      "retrain": 0,
+        //      "reindex": 0,
+        //      "reparse": 0
+        //    }
+        //  }
+        //}
+    }
+
+    /**
+     * 删除聊天机器人
+     *
+     * @throws ChatbotException
+     */
+    public void testDeleteChatbots() throws ChatbotException, MalformedURLException {
+        String chatbotID = "YOUR CLIENT ID";
+
+        // 首先，使用 BOT 的 ClientId 获得 secret
+        Response resp = this.co.command("GET", "/secret/" + chatbotID);
+        System.out.println("[testDeleteChatbots] secret " + resp.toJSON().toString());
+//        {
+//            "rc": 0,
+//                "data": {
+//            "createdAt": "Fri May 10 2024 17:11:52 GMT+0800 (China Standard Time)",
+//                    "isDeleted": false,
+//                    "name": "testdel3",
+//                    "logo": "",
+//                    "secret": "2ba7f080adbb80f67",
+//                    "descriptions": ""
+//        }
+//        }
+
+        if (resp.getRc() == 0) {
+            // 然后，通过 Chatbot 类创建 chatbot，再调用 chatbot 的删除方法
+            JSONObject botInfo = (JSONObject) resp.getData();
+            Chatbot cb = new Chatbot(chatbotID, botInfo.getString("secret"));
+            Response resp2 = cb.command("DELETE", "/");
+            assertEquals(0, resp2.getRc());
+            System.out.println("[testDeleteChatbots] " + resp2.toJSON().toString());
+        }
+    }
 }
